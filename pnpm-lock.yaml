@@ -1,10 +1,12 @@
 lockfileVersion: 5.4
 
 specifiers:
+  '@types/lodash': ^4.14.191
   '@types/react': ^18.0.28
   '@types/react-dom': ^18.0.11
   '@types/styled-components': ^5.1.26
   '@vitejs/plugin-react-swc': ^3.0.0
+  lodash: ^4.17.21
   react: ^18.2.0
   react-dom: ^18.2.0
   styled-components: ^5.3.9
@@ -12,11 +14,13 @@ specifiers:
   vite: ^4.2.0
 
 dependencies:
+  lodash: 4.17.21
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   styled-components: 5.3.9_biqbaboplfbrettd7655fr4n2y
 
 devDependencies:
+  '@types/lodash': 4.14.191
   '@types/react': 18.0.29
   '@types/react-dom': 18.0.11
   '@types/styled-components': 5.1.26
@@ -505,6 +509,10 @@ packages:
     dependencies:
       '@types/react': 18.0.29
       hoist-non-react-statics: 3.3.2
+    dev: true
+
+  /@types/lodash/4.14.191:
+    resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
     dev: true
 
   /@types/prop-types/15.7.5:
