@@ -1,7 +1,8 @@
 import { Button, message, Modal } from 'antd';
 import { useState } from 'react';
 import styled from 'styled-components';
-import game, { CityInfo } from '../../games/game';
+import game, { Character, CityInfo } from '../../games/game';
+import CharacterTable from '../character-table';
 import Menu from '../menu';
 
 const StyledCity = styled.div<{ x: number; y: number }>`
@@ -31,7 +32,12 @@ let timer: any = null;
 
 const City = (props: CityProps) => {
   const { x, y, name, isActive, setMessage, info } = props;
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCityInfoModalVisible, setCityModalVisible] = useState(false);
+  const [isCharacterModalVisible, setCharacterModalVisible] = useState(false);
+  const [character, setCharacter] = useState<Character | null>(null);
+  const [characterModalCallback, setCharacterModalCallback] = useState<
+    ((characterName: string) => void) | null
+  >(null);
 
   const hideMessage = () => {
     if (timer) {
@@ -50,19 +56,31 @@ const City = (props: CityProps) => {
   };
 
   const 治理 = () => {
-    showMessage(`${name} 经过了治理`);
+    setCharacterModalVisible(true);
+    setCharacterModalCallback(() => (characterName: string) => {
+      showMessage(`${name} 经过了 ${characterName} 治理`);
+    });
   };
 
   const 收税 = () => {
-    showMessage(`${name} 经过了收税`);
+    setCharacterModalVisible(true);
+    setCharacterModalCallback(() => (characterName: string) => {
+      showMessage(`${name} 经过了 ${characterName} 收税`);
+    });
   };
 
   const 开垦 = () => {
-    showMessage(`${name} 经过了开垦`);
+    setCharacterModalVisible(true);
+    setCharacterModalCallback(() => (characterName: string) => {
+      showMessage(`${name} 经过了 ${characterName} 开垦`);
+    });
   };
 
   const 征兵 = () => {
-    showMessage(`${name} 经过了征兵`);
+    setCharacterModalVisible(true);
+    setCharacterModalCallback(() => (characterName: string) => {
+      showMessage(`${name} 经过了 ${characterName} 征兵`);
+    });
   };
 
   const 出征 = () => {
@@ -70,7 +88,16 @@ const City = (props: CityProps) => {
   };
 
   const 状况 = () => {
-    setIsModalVisible(true);
+    setCityModalVisible(true);
+  };
+
+  /* 获取该城市内的人员信息 */
+  const getCharacterData = () => {
+    const characters = game.characters;
+    const characterData = characters
+      .filter((item) => item.city === name)
+      .filter((item) => !item.isBusy);
+    return characterData;
   };
 
   return (
@@ -107,12 +134,12 @@ const City = (props: CityProps) => {
       {
         <Modal
           title={null}
-          open={isModalVisible}
+          open={isCityInfoModalVisible}
           footer={
             <Button
               type="primary"
               onClick={() => {
-                setIsModalVisible(false);
+                setCityModalVisible(false);
               }}
             >
               确认
@@ -124,6 +151,32 @@ const City = (props: CityProps) => {
           <p>金钱：{info.money}</p>
         </Modal>
       }
+
+      <Modal
+        title={null}
+        open={isCharacterModalVisible}
+        maskClosable={false}
+        onCancel={() => {
+          setCharacterModalVisible(false);
+        }}
+        onOk={() => {
+          if (characterModalCallback && character) {
+            characterModalCallback(character.name);
+            character.isBusy = true;
+          }
+          setCharacterModalVisible(false);
+        }}
+        destroyOnClose={true}
+        okText="确认选择"
+        cancelText="取消"
+      >
+        <CharacterTable
+          data={getCharacterData()}
+          selectCharacter={(c: Character) => {
+            setCharacter(c);
+          }}
+        />
+      </Modal>
     </StyledCity>
   );
 };

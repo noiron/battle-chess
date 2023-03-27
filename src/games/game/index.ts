@@ -12,6 +12,15 @@ export interface CityInfo {
   money: number;
 }
 
+export interface Character {
+  name: string;
+  faction: string;
+  city: string;
+  power: number;
+  intelligence: number;
+  isBusy: boolean;
+}
+
 class Game {
   /** 玩家选择的游戏势力 */
   playerFaction = '';
@@ -23,6 +32,8 @@ class Game {
   cities: {
     [city: string]: CityInfo;
   } = {};
+
+  characters: Character[] = [];
 
   constructor() {
     this.init();
@@ -74,6 +85,80 @@ class Game {
         money: 3000,
       },
     };
+    this.characters = [
+      {
+        name: '曹操',
+        faction: '魏',
+        city: '洛阳',
+        power: 100,
+        intelligence: 100,
+        isBusy: false,
+      },
+      {
+        name: '许褚',
+        faction: '魏',
+        city: '洛阳',
+        power: 100,
+        intelligence: 100,
+        isBusy: false,
+      },
+      {
+        name: '郭嘉',
+        faction: '魏',
+        city: '洛阳',
+        power: 100,
+        intelligence: 100,
+        isBusy: false,
+      },
+      {
+        name: '刘备',
+        faction: '蜀',
+        city: '成都',
+        power: 100,
+        intelligence: 100,
+        isBusy: false,
+      },
+      {
+        name: '关羽',
+        faction: '蜀',
+        city: '成都',
+        power: 100,
+        intelligence: 100,
+        isBusy: false,
+      },
+      {
+        name: '张飞',
+        faction: '蜀',
+        city: '成都',
+        power: 100,
+        intelligence: 100,
+        isBusy: false,
+      },
+      {
+        name: '孙权',
+        faction: '吴',
+        city: '建邺',
+        power: 100,
+        intelligence: 100,
+        isBusy: false,
+      },
+      {
+        name: '周瑜',
+        faction: '吴',
+        city: '建邺',
+        power: 100,
+        intelligence: 100,
+        isBusy: false,
+      },
+      {
+        name: '吕蒙',
+        faction: '吴',
+        city: '建邺',
+        power: 100,
+        intelligence: 100,
+        isBusy: false,
+      },
+    ];
   }
 
   saveData() {
