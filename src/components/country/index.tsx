@@ -1,7 +1,9 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import City from '../city';
 import Message from './message';
+import game from '../../games/game';
+import { useNavigate } from 'react-router-dom';
 
 const StyledCountry = styled.div`
   width: 600px;
@@ -40,6 +42,15 @@ const Country = () => {
   const [activeCity, setActiveCity] = useState('');
   const [message, setMessage] = useState('');
 
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 如果没有玩家势力，说明游戏没有正确开始，跳转到开始页面
+    if (!game.playerFaction) {
+      navigate('/');
+    }
+  }, []);
+
   return (
     <StyledCountry
       onClick={(e) => {
@@ -56,6 +67,7 @@ const Country = () => {
             x={city.x}
             y={city.y}
             name={city.name}
+            info={game.cities[city.name]}
             isActive={activeCity === city.name}
             key={city.name}
             setActiveCity={setActiveCity}

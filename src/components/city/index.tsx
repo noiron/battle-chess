@@ -1,5 +1,7 @@
+import { Button, message, Modal } from 'antd';
 import { useState } from 'react';
 import styled from 'styled-components';
+import game, { CityInfo } from '../../games/game';
 import Menu from '../menu';
 
 const StyledCity = styled.div<{ x: number; y: number }>`
@@ -19,6 +21,7 @@ interface CityProps {
   x: number;
   y: number;
   name: string;
+  info: CityInfo;
   isActive: boolean;
   setActiveCity: (city: string) => void;
   setMessage: (message: string) => void;
@@ -27,7 +30,8 @@ interface CityProps {
 let timer: any = null;
 
 const City = (props: CityProps) => {
-  const { x, y, name, isActive, setMessage } = props;
+  const { x, y, name, isActive, setMessage, info } = props;
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const hideMessage = () => {
     if (timer) {
@@ -65,6 +69,10 @@ const City = (props: CityProps) => {
     showMessage(`出征`);
   };
 
+  const 状况 = () => {
+    setIsModalVisible(true);
+  };
+
   return (
     <StyledCity
       x={x}
@@ -72,13 +80,50 @@ const City = (props: CityProps) => {
       id={`city-${name}`}
       onClick={(e) => {
         e.stopPropagation();
+
+        // 判断是否为我方城市
+        const playerData = game.factions[game.playerFaction];
+        const playerCities = playerData.cities;
+        if (!playerCities.includes(name)) {
+          message.info('敌方城市');
+          return;
+        }
+
         props.setActiveCity(name);
       }}
     >
       {name}
       {isActive && (
-        <Menu 治理={治理} 收税={收税} 开垦={开垦} 征兵={征兵} 出征={出征} />
+        <Menu
+          治理={治理}
+          收税={收税}
+          开垦={开垦}
+          征兵={征兵}
+          出征={出征}
+          状况={状况}
+        />
       )}
+
+      {
+        <Modal
+          title={null}
+          open={isModalVisible}
+          footer={
+            <Button
+              type="primary"
+              onClick={() => {
+                setIsModalVisible(false);
+              }}
+            >
+              确认
+            </Button>
+          }
+        >
+          <h3>{info.name}</h3>
+          <p>人口：{info.population}</p>
+          <p>金钱：{info.money}</p>
+        </Modal>
+      }
     </StyledCity>
   );
 };

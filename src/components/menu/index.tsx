@@ -16,12 +16,13 @@ interface MenuProps {
   开垦: () => void;
   征兵: () => void;
   出征: () => void;
+  状况: () => void;
 }
 
 const Menu = (props: MenuProps) => {
   const [isActive, setIsActive] = useState(false);
   const [activeMenu, setActiveMenu] = useState(''); // ['内政', '军事']
-  const { 治理, 收税, 开垦, 征兵, 出征 } = props;
+  const { 治理, 收税, 开垦, 征兵, 出征, 状况 } = props;
 
   return (
     <StyledMenu
@@ -42,6 +43,13 @@ const Menu = (props: MenuProps) => {
         }}
       >
         军事
+      </div>
+      <div
+        onClick={() => {
+          状况();
+        }}
+      >
+        状况
       </div>
 
       {isActive && (
