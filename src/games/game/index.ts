@@ -35,6 +35,9 @@ class Game {
 
   characters: Character[] = [];
 
+  year: number = 200;
+  month: number = 1;
+
   constructor() {
     this.init();
   }
@@ -175,6 +178,14 @@ class Game {
     const data = JSON.parse(localStorage.getItem('game') || '{}');
     this.playerFaction = data.playerFaction;
     this.factions = data.factions;
+  }
+
+  nextTurn() {
+    this.month++;
+    if (this.month > 12) {
+      this.month = 1;
+      this.year++;
+    }
   }
 }
 

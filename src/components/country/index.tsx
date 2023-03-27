@@ -4,14 +4,18 @@ import City from '../city';
 import Message from './message';
 import game from '../../games/game';
 import { useNavigate } from 'react-router-dom';
+import Dashboard from './dashborad';
 
-const StyledCountry = styled.div`
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const StyledCountry = styled.div<{ disabled: boolean }>`
   width: 600px;
   height: 600px;
   background-color: #fff;
   border-radius: 10px;
   position: relative;
   user-select: none;
+  pointer-events: ${(props) => (props.disabled ? 'none' : 'auto')};
 `;
 
 type CityType = {
@@ -22,7 +26,7 @@ type CityType = {
 
 const cities: CityType[] = [
   {
-    x: 250,
+    x: 200,
     y: 100,
     name: '洛阳',
   },
@@ -32,8 +36,8 @@ const cities: CityType[] = [
     name: '成都',
   },
   {
-    x: 450,
-    y: 300,
+    x: 350,
+    y: 250,
     name: '建邺',
   },
 ];
@@ -41,6 +45,8 @@ const cities: CityType[] = [
 const Country = () => {
   const [activeCity, setActiveCity] = useState('');
   const [message, setMessage] = useState('');
+  // 执行对方策略时，禁用所有操作
+  const [disabled, setDisabled] = useState(false);
 
   const navigate = useNavigate();
 
@@ -51,15 +57,28 @@ const Country = () => {
     }
   }, []);
 
+  const nextTurn = async () => {
+    const enemies = Object.keys(game.factions).filter(
+      (faction) => faction !== game.playerFaction
+    );
+    for (let i = 0; i < enemies.length; i++) {
+      // TODO: 执行真正的策略逻辑
+      setMessage(`${enemies[i]} 策略中`);
+      await delay(3000);
+    }
+    setMessage('');
+    game.nextTurn();
+  };
+
   return (
     <StyledCountry
       onClick={(e) => {
-        console.log((e.target as HTMLElement).id);
         const id = (e.target as HTMLElement).id;
         if (!id.startsWith('city-')) {
           setActiveCity('');
         }
       }}
+      disabled={disabled}
     >
       {cities.map((city) => {
         return (
@@ -77,6 +96,16 @@ const Country = () => {
           />
         );
       })}
+
+      <Dashboard
+        faction={game.playerFaction}
+        cityNum={game.factions[game.playerFaction]?.cities.length}
+        characterNum={game.factions[game.playerFaction]?.characters.length}
+        year={game.year}
+        month={game.month}
+        nextTurn={nextTurn}
+        activeCity={activeCity}
+      />
 
       {message && <Message message={message} />}
     </StyledCountry>
