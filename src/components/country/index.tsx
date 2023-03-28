@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
+import { Button, message } from 'antd';
 import City from '../city';
 import Message from './message';
 import game from '../../games/game';
@@ -7,6 +8,8 @@ import { useNavigate } from 'react-router-dom';
 import Dashboard from './dashborad';
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export type MapMode = 'normal' | 'select';
 
 const StyledCountry = styled.div<{ disabled: boolean }>`
   width: 600px;
@@ -16,6 +19,12 @@ const StyledCountry = styled.div<{ disabled: boolean }>`
   position: relative;
   user-select: none;
   pointer-events: ${(props) => (props.disabled ? 'none' : 'auto')};
+
+  .cancel-button {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+  }
 `;
 
 type CityType = {
@@ -44,9 +53,12 @@ const cities: CityType[] = [
 
 const Country = () => {
   const [activeCity, setActiveCity] = useState('');
-  const [message, setMessage] = useState('');
+  const [messageText, setMessage] = useState('');
   // 执行对方策略时，禁用所有操作
   const [disabled, setDisabled] = useState(false);
+  // 普通模式下，无法选择敌方城市；选择模式下，可以选择敌方城市
+  const [mode, setMode] = useState<MapMode>('normal');
+  const [targetCity, setTargetCity] = useState('');
 
   const navigate = useNavigate();
 
@@ -61,6 +73,8 @@ const Country = () => {
     const enemies = Object.keys(game.factions).filter(
       (faction) => faction !== game.playerFaction
     );
+
+    setDisabled(true);
     for (let i = 0; i < enemies.length; i++) {
       // TODO: 执行真正的策略逻辑
       setMessage(`${enemies[i]} 策略中`);
@@ -68,12 +82,32 @@ const Country = () => {
     }
     setMessage('');
     game.nextTurn();
+    setDisabled(false);
+  };
+
+  /* 执行出征前，需要将地图转为选择模式 */
+  const 出征 = () => {
+    setMode('select');
+    message.info('请选择目标城市');
+  };
+
+  const selectTargetCity = (cityName: string) => {
+    setTargetCity(cityName);
+    setMode('normal');
+    setMessage(`下一回合，会从 ${activeCity} 进攻 ${cityName}`);
+    setActiveCity('');
   };
 
   return (
     <StyledCountry
       onClick={(e) => {
         const id = (e.target as HTMLElement).id;
+
+        // 处于选择模式下，点击非城市部分，不会改变当前选中城市
+        if (mode === 'select') {
+          return;
+        }
+
         if (!id.startsWith('city-')) {
           setActiveCity('');
         }
@@ -86,6 +120,7 @@ const Country = () => {
             x={city.x}
             y={city.y}
             name={city.name}
+            mode={mode}
             info={game.cities[city.name]}
             isActive={activeCity === city.name}
             key={city.name}
@@ -93,6 +128,8 @@ const Country = () => {
             setMessage={(message: string) => {
               setMessage(message);
             }}
+            出征={出征}
+            selectTargetCity={selectTargetCity}
           />
         );
       })}
@@ -107,7 +144,21 @@ const Country = () => {
         activeCity={activeCity}
       />
 
-      {message && <Message message={message} />}
+      {messageText && <Message message={messageText} />}
+
+      {/* 出征选择模式下，应该能够取消出征指令 */}
+      {mode === 'select' && (
+        <div className="cancel-button">
+          <Button
+            onClick={() => {
+              setMode('normal');
+              message.info('出征已取消');
+            }}
+          >
+            取消
+          </Button>
+        </div>
+      )}
     </StyledCountry>
   );
 };

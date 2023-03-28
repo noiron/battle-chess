@@ -186,6 +186,10 @@ class Game {
       this.month = 1;
       this.year++;
     }
+    // 将所有角色的忙碌状态重置
+    this.characters.forEach((character) => {
+      character.isBusy = false;
+    });
   }
 }
 

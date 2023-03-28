@@ -43,7 +43,6 @@ const Dashboard = (props: DashboardProps) => {
       <p
         className="faction"
         onClick={() => {
-          console.log('click');
           setIsModalVisible(true);
         }}
       >

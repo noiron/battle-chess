@@ -7,10 +7,14 @@ const StyledSubmenu = styled.div`
   top: -2px;
   left: 110%;
   background: #fff;
+
+  & > div {
+    padding: 5px 0;
+  }
 `;
 
 interface SubmenuProps {
-  type: string;
+  type: '内政' | '军事';
   治理: () => void;
   收税: () => void;
   开垦: () => void;

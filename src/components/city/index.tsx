@@ -3,19 +3,23 @@ import { useState } from 'react';
 import styled from 'styled-components';
 import game, { Character, CityInfo } from '../../games/game';
 import CharacterTable from '../character-table';
+import { MapMode } from '../country';
 import Menu from '../menu';
 
 const StyledCity = styled.div<{ x: number; y: number }>`
-  width: 50px;
-  height: 50px;
   position: absolute;
   left: ${(props) => props.x}px;
   top: ${(props) => props.y}px;
-  border: 2px solid #000;
-  border-radius: 10px;
   text-align: center;
-  line-height: 50px;
   cursor: pointer;
+
+  .main {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #000;
+    border-radius: 10px;
+    line-height: 50px;
+  }
 `;
 
 interface CityProps {
@@ -24,14 +28,17 @@ interface CityProps {
   name: string;
   info: CityInfo;
   isActive: boolean;
+  mode: MapMode;
   setActiveCity: (city: string) => void;
   setMessage: (message: string) => void;
+  出征: () => void;
+  selectTargetCity: (city: string) => void;
 }
 
 let timer: any = null;
 
 const City = (props: CityProps) => {
-  const { x, y, name, isActive, setMessage, info } = props;
+  const { x, y, name, isActive, setMessage, info, mode } = props;
   const [isCityInfoModalVisible, setCityModalVisible] = useState(false);
   const [isCharacterModalVisible, setCharacterModalVisible] = useState(false);
   const [character, setCharacter] = useState<Character | null>(null);
@@ -55,42 +62,6 @@ const City = (props: CityProps) => {
     hideMessage();
   };
 
-  const 治理 = () => {
-    setCharacterModalVisible(true);
-    setCharacterModalCallback(() => (characterName: string) => {
-      showMessage(`${name} 经过了 ${characterName} 治理`);
-    });
-  };
-
-  const 收税 = () => {
-    setCharacterModalVisible(true);
-    setCharacterModalCallback(() => (characterName: string) => {
-      showMessage(`${name} 经过了 ${characterName} 收税`);
-    });
-  };
-
-  const 开垦 = () => {
-    setCharacterModalVisible(true);
-    setCharacterModalCallback(() => (characterName: string) => {
-      showMessage(`${name} 经过了 ${characterName} 开垦`);
-    });
-  };
-
-  const 征兵 = () => {
-    setCharacterModalVisible(true);
-    setCharacterModalCallback(() => (characterName: string) => {
-      showMessage(`${name} 经过了 ${characterName} 征兵`);
-    });
-  };
-
-  const 出征 = () => {
-    showMessage(`出征`);
-  };
-
-  const 状况 = () => {
-    setCityModalVisible(true);
-  };
-
   /* 获取该城市内的人员信息 */
   const getCharacterData = () => {
     const characters = game.characters;
@@ -100,27 +71,80 @@ const City = (props: CityProps) => {
     return characterData;
   };
 
+  const handleAction = (action: string) => {
+    if (getCharacterData().length === 0) {
+      message.info('无可用人员');
+      return;
+    }
+    setCharacterModalVisible(true);
+    setCharacterModalCallback(() => (characterName: string) => {
+      showMessage(`${name} 经过了 ${characterName} ${action}`);
+    });
+  };
+
+  const 治理 = () => {
+    handleAction('治理');
+  };
+
+  const 收税 = () => {
+    handleAction('收税');
+  };
+
+  const 开垦 = () => {
+    handleAction('开垦');
+  };
+
+  const 征兵 = () => {
+    handleAction('征兵');
+  };
+
+  const 出征 = () => {
+    props.出征();
+  };
+
+  const 状况 = () => {
+    setCityModalVisible(true);
+  };
+
   return (
-    <StyledCity
-      x={x}
-      y={y}
-      id={`city-${name}`}
-      onClick={(e) => {
-        e.stopPropagation();
+    <StyledCity x={x} y={y} id={`city-${name}`}>
+      <div
+        className="main"
+        onClick={(e) => {
+          e.stopPropagation();
+          const playerData = game.factions[game.playerFaction];
+          const playerCities = playerData.cities;
 
-        // 判断是否为我方城市
-        const playerData = game.factions[game.playerFaction];
-        const playerCities = playerData.cities;
-        if (!playerCities.includes(name)) {
-          message.info('敌方城市');
-          return;
-        }
+          switch (props.mode) {
+            case 'normal': {
+              // 判断是否为我方城市
+              if (!playerCities.includes(name)) {
+                message.info('敌方城市');
+                return;
+              }
 
-        props.setActiveCity(name);
-      }}
-    >
-      {name}
-      {isActive && (
+              props.setActiveCity(name);
+              break;
+            }
+
+            case 'select': {
+              // 该模式下不能选择自己的城市
+              if (playerCities.includes(name)) {
+                message.info('不能选择已方城市');
+                return;
+              }
+
+              props.selectTargetCity(name);
+              break;
+            }
+          }
+        }}
+      >
+        {name}
+      </div>
+
+      {/* 选择模式下，为了防止选中新的指令，需要关闭菜单 */}
+      {isActive && mode !== 'select' && (
         <Menu
           治理={治理}
           收税={收税}

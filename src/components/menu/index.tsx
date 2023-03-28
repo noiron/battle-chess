@@ -8,6 +8,10 @@ const StyledMenu = styled.div`
   position: absolute;
   top: -10px;
   left: 120%;
+
+  & > div {
+    padding: 5px 0;
+  }
 `;
 
 interface MenuProps {
@@ -21,12 +25,13 @@ interface MenuProps {
 
 const Menu = (props: MenuProps) => {
   const [isActive, setIsActive] = useState(false);
-  const [activeMenu, setActiveMenu] = useState(''); // ['内政', '军事']
+  const [activeMenu, setActiveMenu] = useState<'内政' | '军事' | ''>('');
   const { 治理, 收税, 开垦, 征兵, 出征, 状况 } = props;
 
   return (
     <StyledMenu
       onClick={(e) => {
+        e.stopPropagation();
         setIsActive(true);
       }}
     >
@@ -52,7 +57,7 @@ const Menu = (props: MenuProps) => {
         状况
       </div>
 
-      {isActive && (
+      {isActive && activeMenu && (
         <Submenu
           type={activeMenu}
           治理={治理}
