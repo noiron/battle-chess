@@ -5,12 +5,18 @@ import { Pos } from '../../types';
 import Cell from '../cell';
 import Figure from '../figure';
 
-const ROWS = 8;
-const COLS = 10;
+// 定义不同的地形类型
+export const MOUNTAIN = 1;
+export const GRASS = 2;
+export const TREE = 3;
+export const WATER = 4;
+
+const ROWS = 10;
+const COLS = 16;
 
 const StyledBoard = styled.div`
   padding: 10px;
-  background: #454545;
+  /* background: #454545; */
   border-radius: 10px;
   .inner {
     position: relative;
@@ -42,6 +48,35 @@ const figures: FigureType[] = [
 const StyledRow = styled.div`
   display: flex;
 `;
+
+const terrain = [
+  [1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2],
+  [0, 0, 0, 2, 0, 0, 3, 3, 3, 3, 0, 0, 2, 2, 0, 0],
+  [2, 2, 2, 2, 0, 0, 3, 1, 3, 3, 0, 0, 2, 2, 0, 0],
+  [4, 4, 4, 4, 4, 1, 1, 1, 0, 3, 0, 0, 0, 2, 2, 2],
+  [4, 4, 4, 4, 4, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 4, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0],
+  [3, 3, 3, 3, 4, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0],
+  [3, 0, 0, 3, 4, 3, 3, 3, 0, 0, 0, 3, 3, 3, 3, 3],
+  [0, 0, 3, 3, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3, 3],
+  [0, 0, 3, 3, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3, 3],
+];
+
+const getTerrain = (x: number, y: number) => {
+  const type = terrain[y][x];
+  switch (type) {
+    case MOUNTAIN:
+      return 'mountain';
+    case GRASS:
+      return 'grass';
+    case TREE:
+      return 'tree';
+    case WATER:
+      return 'water';
+    default:
+      return '';
+  }
+};
 
 interface BoardProps {}
 
@@ -136,6 +171,7 @@ const Board = (props: BoardProps) => {
                       }
                     }}
                     isAvailable={isAvailable}
+                    terrain={getTerrain(x, y)}
                   />
                 );
               })}

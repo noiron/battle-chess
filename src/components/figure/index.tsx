@@ -78,8 +78,9 @@ const Figure = ({
   className,
   isSelected,
 }: FigureProps) => {
-  const xPixel = x * 54;
-  const yPixel = y * 54;
+  // TODO: 定义常量
+  const xPixel = x * 50;
+  const yPixel = y * 50;
 
   return (
     <StyledFigure
