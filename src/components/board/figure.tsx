@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import knightLogo from '../../assets/knight-black.svg';
 import kingLogo from '../../assets/king-white.svg';
-import { CELL_SIZE } from '../cell';
+import { CELL_SIZE } from './cell';
 
 const StyledFigure = styled.img<{
   top: number;

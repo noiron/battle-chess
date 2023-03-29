@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import lodash from 'lodash';
 import styled from 'styled-components';
 import { Pos } from '../../types';
-import Cell from '../cell';
-import Figure from '../figure';
+import Cell from './cell';
+import Figure from './figure';
 import { TERRAIN_TYPE } from '../../constants';
 
 const ROWS = 10;
