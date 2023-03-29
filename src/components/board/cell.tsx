@@ -1,11 +1,11 @@
 import styled from 'styled-components';
-import { GRASS, MOUNTAIN, TERRAIN_TYPE, TREE, WATER } from '../../constants';
-import mountainImg from '../../assets/mountain.png';
-import grassImg from '../../assets/grass.png';
-import treeImg from '../../assets/tree.png';
-import waterImg from '../../assets/water.png';
-import cursorImg from '../../assets/cursor.png';
-import swordImg from '../../assets/sword.png';
+import { GRASS, MOUNTAIN, TERRAIN_TYPE, TREE, WATER } from '@constants';
+import mountainImg from 'assets/mountain.png';
+import grassImg from 'assets/grass.png';
+import treeImg from 'assets/tree.png';
+import waterImg from 'assets/water.png';
+import cursorImg from 'assets/cursor.png';
+import swordImg from 'assets/sword.png';
 
 export const CELL_SIZE = 32;
 
