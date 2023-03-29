@@ -4,6 +4,7 @@ import mountainImg from '../../assets/mountain.png';
 import grassImg from '../../assets/grass.png';
 import treeImg from '../../assets/tree.png';
 import waterImg from '../../assets/water.png';
+import cursorImg from '../../assets/cursor.png';
 
 export const CELL_SIZE = 32;
 
@@ -17,14 +18,14 @@ const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
 
   .dot {
     display: inline-block;
-    width: 30%;
-    height: 30%;
-    background: lightgreen;
+    width: 80%;
+    height: 80%;
     border-radius: 50%;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    background: url(${cursorImg}) no-repeat center center / 80%;
   }
 
   &:before {
@@ -34,7 +35,7 @@ const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
     top: 0;
     width: 100%;
     height: 100%;
-    opacity: 0.6;
+    opacity: 0.4;
     background-image: url(${(props) => props.bg});
     background-repeat: no-repeat;
     background-position: 50% 0;
