@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
-import { message } from 'antd';
+import { Button, message } from 'antd';
 import lodash from 'lodash';
 import styled from 'styled-components';
 import { Pos } from '../../types';
 import Cell from './cell';
 import Figure from './figure';
 import { TERRAIN_TYPE } from '../../constants';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { delay } from '../../utils';
 
 const ROWS = 10;
 const COLS = 16;
@@ -14,8 +16,23 @@ const StyledBoard = styled.div`
   padding: 10px;
   background: #fff;
   border-radius: 10px;
+  position: relative;
+  padding-bottom: 60px;
+
   .inner {
     position: relative;
+  }
+
+  .info {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 50px;
+    width: 100%;
+    border-top: 1px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
   }
 `;
 
@@ -82,6 +99,9 @@ const Board = (props: BoardProps) => {
   const [selectedFigure, setSelectedFigure] = useState<FigureType | null>(null);
   const [availablePos, setAvailablePos] = useState<Pos[]>([]);
   const [figureStatus, setFigureStatus] = useState<FigureStatus>('normal');
+  const [days, setDays] = useState(1);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [shakeId, setShakeId] = useState(-1);
 
@@ -242,6 +262,32 @@ const Board = (props: BoardProps) => {
             />
           );
         })}
+      </div>
+
+      <div className="info">
+        <span>第 {days} 天</span>
+        <Button
+          onClick={() => {
+            // TODO: 敌方策略
+            setDays(days + 1);
+          }}
+        >
+          结束策略
+        </Button>
+        <Button
+          onClick={async () => {
+            const {
+              state: { war },
+            } = location;
+            if (war) {
+              message.info(`终止进攻 ${war.target}，返回 ${war.source}`);
+              await delay(2000);
+            }
+            navigate('/country');
+          }}
+        >
+          结束战斗
+        </Button>
       </div>
     </StyledBoard>
   );

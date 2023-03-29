@@ -6,8 +6,7 @@ import Message from './message';
 import game from '../../games/game';
 import { useNavigate } from 'react-router-dom';
 import Dashboard from './dashborad';
-
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+import { delay } from '../../utils';
 
 export type MapMode = 'normal' | 'select';
 
@@ -51,6 +50,11 @@ const cities: CityType[] = [
   },
 ];
 
+interface War {
+  source: string;
+  target: string;
+}
+
 const Country = () => {
   const [activeCity, setActiveCity] = useState('');
   const [messageText, setMessage] = useState('');
@@ -59,6 +63,7 @@ const Country = () => {
   // 普通模式下，无法选择敌方城市；选择模式下，可以选择敌方城市
   const [mode, setMode] = useState<MapMode>('normal');
   const [targetCity, setTargetCity] = useState('');
+  const [wars, setWars] = useState<War[]>([]);
 
   const navigate = useNavigate();
 
@@ -83,6 +88,15 @@ const Country = () => {
     setMessage('');
     game.nextTurn();
     setDisabled(false);
+
+    // 检查是否有出征记录
+    if (wars.length > 0) {
+      const war = wars[0];
+      // TODO: 将出征信息记录在全局
+      message.info(`进攻 ${war.target}`);
+      await delay(1000);
+      navigate('/battle', { state: { war }});
+    }
   };
 
   /* 执行出征前，需要将地图转为选择模式 */
@@ -95,6 +109,7 @@ const Country = () => {
     setTargetCity(cityName);
     setMode('normal');
     setMessage(`下一回合，会从 ${activeCity} 进攻 ${cityName}`);
+    setWars([...wars, { source: activeCity, target: cityName }]);
     setActiveCity('');
   };
 
