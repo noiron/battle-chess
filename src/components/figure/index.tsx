@@ -1,14 +1,15 @@
 import styled from 'styled-components';
 import knightLogo from '../../assets/knight-black.svg';
 import kingLogo from '../../assets/king-white.svg';
+import { CELL_SIZE } from '../cell';
 
 const StyledFigure = styled.img<{
   top: number;
   left: number;
   isSelected: boolean;
 }>`
-  width: 48px;
-  height: 48px;
+  width: ${CELL_SIZE - 2}px;
+  height: ${CELL_SIZE - 2}px;
   padding: 4px 2px 0;
   position: absolute;
   top: ${(props) => props.top}px;
@@ -78,9 +79,8 @@ const Figure = ({
   className,
   isSelected,
 }: FigureProps) => {
-  // TODO: 定义常量
-  const xPixel = x * 50;
-  const yPixel = y * 50;
+  const xPixel = x * CELL_SIZE;
+  const yPixel = y * CELL_SIZE;
 
   return (
     <StyledFigure

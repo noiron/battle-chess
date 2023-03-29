@@ -1,13 +1,15 @@
 import styled from 'styled-components';
-
+import { GRASS, MOUNTAIN, TERRAIN_TYPE, TREE, WATER } from '../../constants';
 import mountainImg from '../../assets/mountain.png';
 import grassImg from '../../assets/grass.png';
 import treeImg from '../../assets/tree.png';
 import waterImg from '../../assets/water.png';
 
+export const CELL_SIZE = 32;
+
 const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
-  width: 50px;
-  height: 50px;
+  width: ${CELL_SIZE}px;
+  height: ${CELL_SIZE}px;
   box-sizing: border-box;
   /* border: 1px solid #ccc; */
   background: ${(props) => (props.isSelected ? '#FFA500' : '#eaeaea')};
@@ -15,8 +17,8 @@ const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
 
   .dot {
     display: inline-block;
-    width: 20px;
-    height: 20px;
+    width: 30%;
+    height: 30%;
     background: lightgreen;
     border-radius: 50%;
     position: absolute;
@@ -32,7 +34,7 @@ const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
     top: 0;
     width: 100%;
     height: 100%;
-    opacity: 0.5;
+    opacity: 0.6;
     background-image: url(${(props) => props.bg});
     background-repeat: no-repeat;
     background-position: 50% 0;
@@ -46,17 +48,16 @@ interface CellProps {
   isSelected: boolean;
   isAvailable: boolean;
   /* 背景类型 */
-  terrain: string;
+  terrain: TERRAIN_TYPE;
 }
 
 const bgMap: {
-  // TODO: 定义地形的类型
   [key: string]: string;
 } = {
-  mountain: mountainImg,
-  grass: grassImg,
-  tree: treeImg,
-  water: waterImg,
+  [MOUNTAIN]: mountainImg,
+  [GRASS]: grassImg,
+  [TREE]: treeImg,
+  [WATER]: waterImg,
 };
 
 const Cell = (props: CellProps) => {

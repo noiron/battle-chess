@@ -4,19 +4,14 @@ import styled from 'styled-components';
 import { Pos } from '../../types';
 import Cell from '../cell';
 import Figure from '../figure';
-
-// 定义不同的地形类型
-export const MOUNTAIN = 1;
-export const GRASS = 2;
-export const TREE = 3;
-export const WATER = 4;
+import { TERRAIN_TYPE } from '../../constants';
 
 const ROWS = 10;
 const COLS = 16;
 
 const StyledBoard = styled.div`
   padding: 10px;
-  /* background: #454545; */
+  background: #fff;
   border-radius: 10px;
   .inner {
     position: relative;
@@ -49,7 +44,7 @@ const StyledRow = styled.div`
   display: flex;
 `;
 
-const terrain = [
+const terrain: TERRAIN_TYPE[][] = [
   [1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2],
   [0, 0, 0, 2, 0, 0, 3, 3, 3, 3, 0, 0, 2, 2, 0, 0],
   [2, 2, 2, 2, 0, 0, 3, 1, 3, 3, 0, 0, 2, 2, 0, 0],
@@ -63,19 +58,12 @@ const terrain = [
 ];
 
 const getTerrain = (x: number, y: number) => {
+  // 以下两行仅做测试
+  // x = x % terrain[0].length;
+  // y = y % terrain.length;
+
   const type = terrain[y][x];
-  switch (type) {
-    case MOUNTAIN:
-      return 'mountain';
-    case GRASS:
-      return 'grass';
-    case TREE:
-      return 'tree';
-    case WATER:
-      return 'water';
-    default:
-      return '';
-  }
+  return type || 0;
 };
 
 interface BoardProps {}
