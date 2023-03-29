@@ -5,6 +5,7 @@ import grassImg from '../../assets/grass.png';
 import treeImg from '../../assets/tree.png';
 import waterImg from '../../assets/water.png';
 import cursorImg from '../../assets/cursor.png';
+import swordImg from '../../assets/sword.png';
 
 export const CELL_SIZE = 32;
 
@@ -16,7 +17,7 @@ const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
   background: ${(props) => (props.isSelected ? '#FFA500' : '#eaeaea')};
   position: relative;
 
-  .dot {
+  .indicator {
     display: inline-block;
     width: 80%;
     height: 80%;
@@ -25,7 +26,14 @@ const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: url(${cursorImg}) no-repeat center center / 80%;
+
+    &.move {
+      background: url(${cursorImg}) no-repeat center center / 80%;
+    }
+
+    &.attack {
+      background: url(${swordImg}) no-repeat center center / 80%;
+    }
   }
 
   &:before {
@@ -47,9 +55,14 @@ const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
 interface CellProps {
   onClick: () => void;
   isSelected: boolean;
+  /** 是否可移动至该位置 */
   isAvailable: boolean;
-  /* 背景类型 */
+  /** 背景类型 */
   terrain: TERRAIN_TYPE;
+  /** 是否在攻击范围内 */
+  isInAttackRange: boolean;
+  /** 需要知道棋子所在的状态，以此决定是否展示移动图标或攻击图标 */
+  figureStatus: string;
 }
 
 const bgMap: {
@@ -62,6 +75,8 @@ const bgMap: {
 };
 
 const Cell = (props: CellProps) => {
+  const { figureStatus } = props;
+
   return (
     <StyledCell
       onClick={() => {
@@ -70,7 +85,12 @@ const Cell = (props: CellProps) => {
       isSelected={props.isSelected}
       bg={bgMap[props.terrain] || ''}
     >
-      {props.isAvailable && <span className="dot"></span>}
+      {props.isAvailable && figureStatus === 'move' && (
+        <span className="indicator move"></span>
+      )}
+      {props.isInAttackRange && figureStatus === 'attack' && (
+        <span className="indicator attack"></span>
+      )}
     </StyledCell>
   );
 };

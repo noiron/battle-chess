@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { message } from 'antd';
 import lodash from 'lodash';
 import styled from 'styled-components';
 import { Pos } from '../../types';
@@ -66,12 +67,21 @@ const getTerrain = (x: number, y: number) => {
   return type || 0;
 };
 
+// 棋子分为以下的几种状态：
+// 1. 未选中状态 [normal]
+// 2. 选中状态，展示可移动的位置 [move]
+// 3. 执行了移动操作，展示可攻击的位置 [attack]
+// 4.1 取消了攻击，则回到状态2
+// 4.2 执行了攻击，则回到状态1
+type FigureStatus = 'normal' | 'move' | 'attack';
+
 interface BoardProps {}
 
 const Board = (props: BoardProps) => {
   const [allFigures, setAllFigures] = useState([...figures]);
   const [selectedFigure, setSelectedFigure] = useState<FigureType | null>(null);
   const [availablePos, setAvailablePos] = useState<Pos[]>([]);
+  const [figureStatus, setFigureStatus] = useState<FigureStatus>('normal');
 
   const [shakeId, setShakeId] = useState(-1);
 
@@ -118,8 +128,11 @@ const Board = (props: BoardProps) => {
     });
     allFigures.splice(index, 1, newFigure);
     const newFigures = [...allFigures];
-    setSelectedFigure(null);
+
+    // 移动之后进入攻击状态
     setAllFigures(newFigures);
+    setFigureStatus('attack');
+    setSelectedFigure(newFigure);
 
     // setShakeId(oldFigure.id);
     // setTimeout(() => {
@@ -148,18 +161,41 @@ const Board = (props: BoardProps) => {
                 const isSelected =
                   x === selectedFigure?.x && y === selectedFigure?.y;
 
+                const isInAttackRange = selectedFigure
+                  ? checkInAttackRange(x, y, selectedFigure)
+                  : false;
+
                 return (
                   <Cell
                     key={x}
                     isSelected={isSelected}
                     onClick={() => {
                       // 移动选中的棋子至这个位置
-                      if (isAvailable && selectedFigure) {
+                      if (
+                        selectedFigure &&
+                        isAvailable &&
+                        figureStatus === 'move'
+                      ) {
                         moveFigure(selectedFigure.id, { x, y }, false);
+                        return;
+                      }
+                      // 攻击
+                      if (
+                        selectedFigure &&
+                        isInAttackRange &&
+                        figureStatus === 'attack'
+                      ) {
+                        message.info('无效的攻击目标');
+                        // 重置棋子状态
+                        setFigureStatus('normal');
+                        setSelectedFigure(null);
+                        return;
                       }
                     }}
                     isAvailable={isAvailable}
                     terrain={getTerrain(x, y)}
+                    isInAttackRange={isInAttackRange}
+                    figureStatus={figureStatus}
                   />
                 );
               })}
@@ -176,19 +212,30 @@ const Board = (props: BoardProps) => {
               onClick={() => {
                 // 如果当前没有选中的棋子，则选中当前棋子
                 if (!selectedFigure) {
+                  setFigureStatus('move');
                   setSelectedFigure(figure);
                   return;
                 }
 
-                // 当前已有选中的棋子，则将选中的棋子移动到当前位置之后退回原位置
+                // 如果选中的棋子是当前棋子，且棋子已处于待移动状态，则进入攻击选择状态
                 if (
-                  availablePos.some((a) => a.x === figure.x && a.y === figure.y)
+                  selectedFigure.id === figure.id &&
+                  figureStatus === 'move'
                 ) {
-                  moveFigure(
-                    selectedFigure.id,
-                    { x: figure.x, y: figure.y },
-                    true
-                  );
+                  setFigureStatus('attack');
+                  return;
+                }
+
+                if (
+                  figureStatus === 'attack' &&
+                  selectedFigure.id !== figure.id &&
+                  checkInAttackRange(figure.x, figure.y, selectedFigure)
+                ) {
+                  message.info('执行攻击，对方生命值减少');
+                  // 重置选中棋子状态
+                  setFigureStatus('normal');
+                  setSelectedFigure(null);
+                  return;
                 }
               }}
               className={shakeId === figure.id ? 'shake' : ''}
@@ -199,5 +246,9 @@ const Board = (props: BoardProps) => {
     </StyledBoard>
   );
 };
+
+function checkInAttackRange(x: number, y: number, figure: FigureType) {
+  return Math.abs(x - figure.x) <= 1 && Math.abs(y - figure.y) <= 1;
+}
 
 export default Board;
