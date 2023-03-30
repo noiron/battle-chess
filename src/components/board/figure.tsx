@@ -4,8 +4,10 @@ import { CELL_SIZE } from './cell';
 import { useInterval } from '../../utils';
 import knightLogo from '../../assets/knight-black.svg';
 import kingLogo from '../../assets/king-white.svg';
-import archerLogo1 from 'assets/archer1.png';
-import archerLogo2 from 'assets/archer2.png';
+import archerIcon1 from 'assets/archer1.png';
+import archerIcon2 from 'assets/archer2.png';
+import cavalryIcon1 from 'assets/cavalry1.png';
+import cavalryIcon2 from 'assets/cavalry2.png';
 
 const StyledFigure = styled.img<{
   top: number;
@@ -72,7 +74,8 @@ const logos: {
 } = {
   king: kingLogo,
   knight: knightLogo,
-  archer: [archerLogo1, archerLogo2],
+  archer: [archerIcon1, archerIcon2],
+  cavalry: [cavalryIcon1, cavalryIcon2],
 };
 
 const Figure = ({

@@ -61,6 +61,12 @@ const figures: FigureType[] = [
     x: 5,
     y: 6,
     type: 'archer',
+  },
+  {
+    id: 4,
+    x: 7,
+    y: 6,
+    type: 'cavalry',
   }
 ];
 
@@ -127,7 +133,7 @@ const Board = (props: BoardProps) => {
           { x: x + 1, y: y },
           { x: x + 2, y: y },
         ]);
-      } else if (type === 'king') {
+      } else {
         setAvailablePos([
           { x: x - 1, y: y - 1 },
           { x: x, y: y - 1 },
