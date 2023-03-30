@@ -56,6 +56,12 @@ const figures: FigureType[] = [
     y: 3,
     type: 'king',
   },
+  {
+    id: 3,
+    x: 5,
+    y: 6,
+    type: 'archer',
+  }
 ];
 
 const StyledRow = styled.div`

@@ -1,7 +1,11 @@
 import styled from 'styled-components';
+import { useState } from 'react';
+import { CELL_SIZE } from './cell';
+import { useInterval } from '../../utils';
 import knightLogo from '../../assets/knight-black.svg';
 import kingLogo from '../../assets/king-white.svg';
-import { CELL_SIZE } from './cell';
+import archerLogo1 from 'assets/archer1.png';
+import archerLogo2 from 'assets/archer2.png';
 
 const StyledFigure = styled.img<{
   top: number;
@@ -64,10 +68,11 @@ interface FigureProps {
 }
 
 const logos: {
-  [index: string]: string;
+  [index: string]: string | string[];
 } = {
   king: kingLogo,
   knight: knightLogo,
+  archer: [archerLogo1, archerLogo2],
 };
 
 const Figure = ({
@@ -81,11 +86,29 @@ const Figure = ({
 }: FigureProps) => {
   const xPixel = x * CELL_SIZE;
   const yPixel = y * CELL_SIZE;
+  const [counter, setCounter] = useState(0);
+
+  const thisLogo = logos[type];
+  const [logo, setLogo] = useState(
+    typeof thisLogo === 'string' ? thisLogo : thisLogo[0]
+  );
+
+  useInterval(() => {
+    // 判断兵种图标是否需要切换
+    if (typeof thisLogo === 'string') {
+      return;
+    }
+
+    // TODO: 只有单位在当前回合可操作的时候才展示动画
+
+    setCounter((counter) => counter + 1);
+    setLogo(thisLogo[counter % thisLogo.length]);
+  }, 500);
 
   return (
     <StyledFigure
       id={`figure-${id}`}
-      src={logos[type]}
+      src={logo}
       top={yPixel}
       left={xPixel}
       onClick={() => {
