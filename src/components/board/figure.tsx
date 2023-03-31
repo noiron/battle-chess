@@ -53,7 +53,6 @@ interface FigureProps {
   x: number;
   y: number;
   onClick: () => void;
-  className: string;
   isSelected: boolean;
   attackAction: () => void;
   waitForNextTurn: () => void;
@@ -77,7 +76,6 @@ const Figure = ({
   type,
   id,
   onClick,
-  className,
   isSelected,
   attackAction,
   waitForNextTurn,
@@ -116,7 +114,6 @@ const Figure = ({
         onClick={() => {
           onClick();
         }}
-        className={className}
       />
       {showMenu && (
         <StyledMenu>

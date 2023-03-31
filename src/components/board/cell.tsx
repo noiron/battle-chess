@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import { GRASS, MOUNTAIN, TERRAIN_TYPE, TREE, WATER } from '@constants';
-import mountainImg from 'assets/mountain.png';
-import grassImg from 'assets/grass.png';
-import treeImg from 'assets/tree.png';
-import waterImg from 'assets/water.png';
+import mountainImg from 'assets/mountain.svg';
+import grassImg from 'assets/grass.svg';
+import treeImg from 'assets/tree.svg';
+import waterImg from 'assets/water.svg';
 import cursorImg from 'assets/cursor.png';
 import swordImg from 'assets/sword.png';
 

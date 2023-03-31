@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Pos } from '../../types';
 import Cell from './cell';
 import Figure from './figure';
-import { TERRAIN_TYPE } from '../../constants';
+import { TERRAIN_TEXT, TERRAIN_TYPE, TROOP_MAP, TROOP_TYPE } from '@constants';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { delay } from '../../utils';
 
@@ -40,11 +40,12 @@ type FigureType = {
   id: number;
   x: number;
   y: number;
-  type: string;
+  type: TROOP_TYPE;
   /** 是否可执行操作 */
   actionable: boolean;
   /** 区分敌我 */
   side: 'enemy' | 'ally';
+  name: string;
 };
 
 const figures: FigureType[] = [
@@ -55,6 +56,7 @@ const figures: FigureType[] = [
     type: 'knight',
     actionable: true,
     side: 'enemy',
+    name: '小张',
   },
   {
     id: 2,
@@ -63,6 +65,7 @@ const figures: FigureType[] = [
     type: 'king',
     actionable: true,
     side: 'enemy',
+    name: '小李',
   },
   {
     id: 3,
@@ -71,6 +74,7 @@ const figures: FigureType[] = [
     type: 'archer',
     actionable: true,
     side: 'ally',
+    name: '赵云',
   },
   {
     id: 4,
@@ -79,6 +83,7 @@ const figures: FigureType[] = [
     type: 'cavalry',
     actionable: true,
     side: 'ally',
+    name: '张飞',
   },
 ];
 
@@ -92,11 +97,11 @@ const terrain: TERRAIN_TYPE[][] = [
   [2, 2, 2, 2, 0, 0, 3, 1, 3, 3, 0, 0, 2, 2, 0, 0],
   [4, 4, 4, 4, 4, 1, 1, 1, 0, 3, 0, 0, 0, 2, 2, 2],
   [4, 4, 4, 4, 4, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 0, 4, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0],
-  [3, 3, 3, 3, 4, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0],
-  [3, 0, 0, 3, 4, 3, 3, 3, 0, 0, 0, 3, 3, 3, 3, 3],
-  [0, 0, 3, 3, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3, 3],
-  [0, 0, 3, 3, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3, 3],
+  [0, 0, 0, 4, 4, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0],
+  [3, 3, 3, 4, 4, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0],
+  [3, 3, 3, 4, 4, 3, 3, 3, 0, 0, 0, 3, 3, 3, 3, 3],
+  [0, 0, 3, 4, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3, 3],
+  [0, 0, 3, 4, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3, 3],
 ];
 
 const getTerrain = (x: number, y: number) => {
@@ -129,7 +134,17 @@ const Board = (props: BoardProps) => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [shakeId, setShakeId] = useState(-1);
+  const [clickEntity, setClickEntity] = useState<
+    | {
+        entityType: 'terrain';
+        pos: Pos;
+        terrain: TERRAIN_TYPE;
+      }
+    | ({
+        entityType: 'figure';
+      } & FigureType)
+    | null
+  >(null);
 
   useEffect(() => {
     if (selectedFigure) {
@@ -259,6 +274,12 @@ const Board = (props: BoardProps) => {
                         setShowFigureMenu(true);
                         return;
                       }
+
+                      setClickEntity({
+                        entityType: 'terrain',
+                        pos: { x, y },
+                        terrain: getTerrain(x, y),
+                      });
                     }}
                     isAvailable={isAvailable}
                     terrain={getTerrain(x, y)}
@@ -283,6 +304,7 @@ const Board = (props: BoardProps) => {
               waitForNextTurn={waitForNextTurn}
               showMenu={isSelected && showFigureMenu}
               onClick={() => {
+                setClickEntity({ entityType: 'figure', ...figure });
                 // 当前没有选中的棋子
                 if (!selectedFigure) {
                   // 如果这个棋子不可操作，则不做任何处理
@@ -301,6 +323,7 @@ const Board = (props: BoardProps) => {
                   figureStatus === 'move'
                 ) {
                   setFigureStatus('action');
+                  setShowFigureMenu(true);
                   return;
                 }
 
@@ -334,7 +357,6 @@ const Board = (props: BoardProps) => {
                   return;
                 }
               }}
-              className={shakeId === figure.id ? 'shake' : ''}
             />
           );
         })}
@@ -342,6 +364,17 @@ const Board = (props: BoardProps) => {
 
       <div className="info">
         <span>第 {days} 天</span>
+        <span
+          style={{
+            width: 150,
+          }}
+        >
+          {clickEntity?.entityType === 'terrain'
+            ? TERRAIN_TEXT[clickEntity.terrain]
+            : clickEntity?.entityType === 'figure'
+            ? clickEntity.name + '(' + TROOP_MAP[clickEntity.type] + ')'
+            : ''}
+        </span>
         <Button
           onClick={() => {
             // TODO: 敌方策略
