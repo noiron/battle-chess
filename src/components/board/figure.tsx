@@ -44,10 +44,6 @@ const StyledFigure = styled.div<{
   img {
     width: 100%;
     height: 100%;
-
-    &:hover {
-      transform: scale(1.05);
-    }
   }
 `;
 
@@ -63,6 +59,7 @@ interface FigureProps {
   waitForNextTurn: () => void;
   showMenu: boolean;
   actionable: boolean;
+  side: 'ally' | 'enemy';
 }
 
 const logos: {

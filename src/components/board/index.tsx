@@ -43,6 +43,8 @@ type FigureType = {
   type: string;
   /** 是否可执行操作 */
   actionable: boolean;
+  /** 区分敌我 */
+  side: 'enemy' | 'ally';
 };
 
 const figures: FigureType[] = [
@@ -52,6 +54,7 @@ const figures: FigureType[] = [
     y: 2,
     type: 'knight',
     actionable: true,
+    side: 'enemy',
   },
   {
     id: 2,
@@ -59,6 +62,7 @@ const figures: FigureType[] = [
     y: 3,
     type: 'king',
     actionable: true,
+    side: 'enemy',
   },
   {
     id: 3,
@@ -66,6 +70,7 @@ const figures: FigureType[] = [
     y: 6,
     type: 'archer',
     actionable: true,
+    side: 'ally',
   },
   {
     id: 4,
@@ -73,6 +78,7 @@ const figures: FigureType[] = [
     y: 6,
     type: 'cavalry',
     actionable: true,
+    side: 'ally',
   },
 ];
 
@@ -209,7 +215,6 @@ const Board = (props: BoardProps) => {
     setShowFigureMenu(false);
   };
 
-
   return (
     <StyledBoard>
       <div className="inner">
@@ -249,9 +254,9 @@ const Board = (props: BoardProps) => {
                         figureStatus === 'attack'
                       ) {
                         message.info('无效的攻击目标');
-                        // 重置棋子状态
-                        setFigureStatus('normal');
-                        setSelectedFigure(null);
+                        // 重置棋子状态至操作选择状态
+                        setFigureStatus('action');
+                        setShowFigureMenu(true);
                         return;
                       }
                     }}
@@ -278,13 +283,13 @@ const Board = (props: BoardProps) => {
               waitForNextTurn={waitForNextTurn}
               showMenu={isSelected && showFigureMenu}
               onClick={() => {
-                // 如果当前棋子不可操作，则不做任何处理
-                if (!figure.actionable) {
-                  return;
-                }
-
-                // 如果当前没有选中的棋子，则选中当前棋子
+                // 当前没有选中的棋子
                 if (!selectedFigure) {
+                  // 如果这个棋子不可操作，则不做任何处理
+                  if (!figure.actionable || figure.side !== 'ally') {
+                    return;
+                  }
+                  // 选中当前棋子
                   setFigureStatus('move');
                   setSelectedFigure(figure);
                   return;
@@ -299,12 +304,30 @@ const Board = (props: BoardProps) => {
                   return;
                 }
 
+                // 点击了非选中状态的棋子
                 if (
-                  figureStatus === 'attack' &&
                   selectedFigure.id !== figure.id &&
-                  checkInAttackRange(figure.x, figure.y, selectedFigure)
+                  figureStatus === 'attack' &&
+                  checkInAttackRange(figure.x, figure.y, selectedFigure) &&
+                  figure.side !== 'ally'
                 ) {
                   message.info('执行攻击，对方生命值减少');
+
+                  const index = allFigures.findIndex(
+                    (f) => f.id === selectedFigure?.id
+                  );
+                  const oldFigure = allFigures[index];
+                  const newFigure = Object.assign({}, oldFigure, {
+                    actionable: false,
+                  });
+                  allFigures.splice(index, 1, newFigure);
+                  const newFigures = [...allFigures];
+
+                  setAllFigures(newFigures);
+                  setFigureStatus('normal');
+                  setSelectedFigure(null);
+                  setShowFigureMenu(false);
+
                   // 重置选中棋子状态
                   setFigureStatus('normal');
                   setSelectedFigure(null);
