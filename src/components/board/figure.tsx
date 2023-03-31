@@ -62,6 +62,7 @@ interface FigureProps {
   attackAction: () => void;
   waitForNextTurn: () => void;
   showMenu: boolean;
+  actionable: boolean;
 }
 
 const logos: {
@@ -84,6 +85,7 @@ const Figure = ({
   attackAction,
   waitForNextTurn,
   showMenu,
+  actionable,
 }: FigureProps) => {
   const xPixel = x * CELL_SIZE;
   const yPixel = y * CELL_SIZE;
@@ -95,12 +97,15 @@ const Figure = ({
   );
 
   useInterval(() => {
+    // 只有单位在当前回合可操作的时候才展示动画
+    if (!actionable) {
+      return;
+    }
+
     // 判断兵种图标是否需要切换
     if (typeof thisLogo === 'string') {
       return;
     }
-
-    // TODO: 只有单位在当前回合可操作的时候才展示动画
 
     setCounter((counter) => counter + 1);
     setLogo(thisLogo[counter % thisLogo.length]);

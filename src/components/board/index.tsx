@@ -41,6 +41,8 @@ type FigureType = {
   x: number;
   y: number;
   type: string;
+  /** 是否可执行操作 */
+  actionable: boolean;
 };
 
 const figures: FigureType[] = [
@@ -49,25 +51,29 @@ const figures: FigureType[] = [
     x: 2,
     y: 2,
     type: 'knight',
+    actionable: true,
   },
   {
     id: 2,
     x: 3,
     y: 3,
     type: 'king',
+    actionable: true,
   },
   {
     id: 3,
     x: 5,
     y: 6,
     type: 'archer',
+    actionable: true,
   },
   {
     id: 4,
     x: 7,
     y: 6,
     type: 'cavalry',
-  }
+    actionable: true,
+  },
 ];
 
 const StyledRow = styled.div`
@@ -185,14 +191,24 @@ const Board = (props: BoardProps) => {
   const attackAction = () => {
     setFigureStatus('attack');
     setShowFigureMenu(false);
-  }
+  };
 
   /** 点击操作菜单的待机选项 */
   const waitForNextTurn = () => {
+    const index = allFigures.findIndex((f) => f.id === selectedFigure?.id);
+    const oldFigure = allFigures[index];
+    const newFigure = Object.assign({}, oldFigure, {
+      actionable: false,
+    });
+    allFigures.splice(index, 1, newFigure);
+    const newFigures = [...allFigures];
+
+    setAllFigures(newFigures);
     setFigureStatus('normal');
     setSelectedFigure(null);
     setShowFigureMenu(false);
-  }
+  };
+
 
   return (
     <StyledBoard>
@@ -262,6 +278,11 @@ const Board = (props: BoardProps) => {
               waitForNextTurn={waitForNextTurn}
               showMenu={isSelected && showFigureMenu}
               onClick={() => {
+                // 如果当前棋子不可操作，则不做任何处理
+                if (!figure.actionable) {
+                  return;
+                }
+
                 // 如果当前没有选中的棋子，则选中当前棋子
                 if (!selectedFigure) {
                   setFigureStatus('move');
@@ -301,7 +322,20 @@ const Board = (props: BoardProps) => {
         <Button
           onClick={() => {
             // TODO: 敌方策略
+
+            const newFigures = allFigures.map((figure) => {
+              return Object.assign({}, figure, {
+                actionable: true,
+              });
+            });
+            setAllFigures(newFigures);
+
             setDays(days + 1);
+
+            // 状态重置
+            setFigureStatus('normal');
+            setSelectedFigure(null);
+            setShowFigureMenu(false);
           }}
         >
           结束策略
