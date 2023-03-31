@@ -99,10 +99,11 @@ const getTerrain = (x: number, y: number) => {
 // 棋子分为以下的几种状态：
 // 1. 未选中状态 [normal]
 // 2. 选中状态，展示可移动的位置 [move]
-// 3. 执行了移动操作，展示可攻击的位置 [attack]
-// 4.1 取消了攻击，则回到状态2
-// 4.2 执行了攻击，则回到状态1
-type FigureStatus = 'normal' | 'move' | 'attack';
+// 3. 执行了移动操作，展示可选择操作菜单 [action]
+// 4.1 选择了攻击操作，展示可攻击的位置 [attack]
+// 5.1 取消了攻击，则回到状态2
+// 5.2 执行了攻击，则回到状态1
+type FigureStatus = 'normal' | 'move' | 'action' | 'attack';
 
 interface BoardProps {}
 
@@ -111,6 +112,7 @@ const Board = (props: BoardProps) => {
   const [selectedFigure, setSelectedFigure] = useState<FigureType | null>(null);
   const [availablePos, setAvailablePos] = useState<Pos[]>([]);
   const [figureStatus, setFigureStatus] = useState<FigureStatus>('normal');
+  const [showFigureMenu, setShowFigureMenu] = useState(false);
   const [days, setDays] = useState(1);
   const location = useLocation();
   const navigate = useNavigate();
@@ -161,15 +163,15 @@ const Board = (props: BoardProps) => {
     allFigures.splice(index, 1, newFigure);
     const newFigures = [...allFigures];
 
-    // 移动之后进入攻击状态
+    // 移动之后进入操作选择状态
     setAllFigures(newFigures);
-    setFigureStatus('attack');
+    setFigureStatus('action');
     setSelectedFigure(newFigure);
 
-    // setShakeId(oldFigure.id);
-    // setTimeout(() => {
-    //   setShakeId(-1);
-    // }, 1000);
+    // 这里延迟是为了在棋子移动到位后再显示菜单
+    setTimeout(() => {
+      setShowFigureMenu(true);
+    }, 500);
 
     const timer = setTimeout(() => {
       if (moveBack) {
@@ -178,6 +180,19 @@ const Board = (props: BoardProps) => {
       clearTimeout(timer);
     }, 1000);
   };
+
+  /** 点击操作菜单的攻击选项 */
+  const attackAction = () => {
+    setFigureStatus('attack');
+    setShowFigureMenu(false);
+  }
+
+  /** 点击操作菜单的待机选项 */
+  const waitForNextTurn = () => {
+    setFigureStatus('normal');
+    setSelectedFigure(null);
+    setShowFigureMenu(false);
+  }
 
   return (
     <StyledBoard>
@@ -236,11 +251,16 @@ const Board = (props: BoardProps) => {
         })}
 
         {allFigures.map((figure) => {
+          const isSelected = selectedFigure?.id === figure.id;
+
           return (
             <Figure
               key={figure.id}
               {...figure}
-              isSelected={selectedFigure?.id === figure.id}
+              isSelected={isSelected}
+              attackAction={attackAction}
+              waitForNextTurn={waitForNextTurn}
+              showMenu={isSelected && showFigureMenu}
               onClick={() => {
                 // 如果当前没有选中的棋子，则选中当前棋子
                 if (!selectedFigure) {
@@ -249,12 +269,12 @@ const Board = (props: BoardProps) => {
                   return;
                 }
 
-                // 如果选中的棋子是当前棋子，且棋子已处于待移动状态，则进入攻击选择状态
+                // 如果选中的棋子是当前棋子，且棋子已处于待移动状态，则进入操作选择状态
                 if (
                   selectedFigure.id === figure.id &&
                   figureStatus === 'move'
                 ) {
-                  setFigureStatus('attack');
+                  setFigureStatus('action');
                   return;
                 }
 

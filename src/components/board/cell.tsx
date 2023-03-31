@@ -14,7 +14,7 @@ const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
   height: ${CELL_SIZE}px;
   box-sizing: border-box;
   /* border: 1px solid #ccc; */
-  background: ${(props) => (props.isSelected ? '#FFA500' : '#eaeaea')};
+  /* background: ${(props) => (props.isSelected ? '#FFA500' : '#eaeaea')}; */
   position: relative;
 
   .indicator {

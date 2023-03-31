@@ -9,7 +9,25 @@ import archerIcon2 from 'assets/archer2.png';
 import cavalryIcon1 from 'assets/cavalry1.png';
 import cavalryIcon2 from 'assets/cavalry2.png';
 
-const StyledFigure = styled.img<{
+const StyledMenu = styled.div`
+  position: absolute;
+  top: 10px;
+  right: -40px;
+  border: 1px solid #000;
+  background: #fff;
+
+  p {
+    margin: 0px;
+    padding: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background: #eee;
+    }
+  }
+`;
+
+const StyledFigure = styled.div<{
   top: number;
   left: number;
   isSelected: boolean;
@@ -23,38 +41,12 @@ const StyledFigure = styled.img<{
   transition: all 0.5s;
   z-index: ${(props) => (props.isSelected ? 99 : 1)};
 
-  &:hover {
-    transform: scale(1.05);
-  }
+  img {
+    width: 100%;
+    height: 100%;
 
-  &.shake {
-    animation: shake-lr 0.7s cubic-bezier(0.455, 0.03, 0.515, 0.955) both;
-  }
-
-  @keyframes shake-lr {
-    0%,
-    100% {
-      transform: rotate(0deg);
-      transform-origin: 50% 50%;
-    }
-    10% {
-      transform: rotate(8deg);
-    }
-    20%,
-    40%,
-    60% {
-      transform: rotate(-10deg);
-    }
-    30%,
-    50%,
-    70% {
-      transform: rotate(10deg);
-    }
-    80% {
-      transform: rotate(-8deg);
-    }
-    90% {
-      transform: rotate(8deg);
+    &:hover {
+      transform: scale(1.05);
     }
   }
 `;
@@ -67,6 +59,9 @@ interface FigureProps {
   onClick: () => void;
   className: string;
   isSelected: boolean;
+  attackAction: () => void;
+  waitForNextTurn: () => void;
+  showMenu: boolean;
 }
 
 const logos: {
@@ -86,6 +81,9 @@ const Figure = ({
   onClick,
   className,
   isSelected,
+  attackAction,
+  waitForNextTurn,
+  showMenu,
 }: FigureProps) => {
   const xPixel = x * CELL_SIZE;
   const yPixel = y * CELL_SIZE;
@@ -109,17 +107,34 @@ const Figure = ({
   }, 500);
 
   return (
-    <StyledFigure
-      id={`figure-${id}`}
-      src={logo}
-      top={yPixel}
-      left={xPixel}
-      onClick={() => {
-        onClick();
-      }}
-      className={className}
-      isSelected={isSelected}
-    />
+    <StyledFigure top={yPixel} left={xPixel} isSelected={isSelected}>
+      <img
+        id={`figure-${id}`}
+        src={logo}
+        onClick={() => {
+          onClick();
+        }}
+        className={className}
+      />
+      {showMenu && (
+        <StyledMenu>
+          <p
+            onClick={() => {
+              attackAction();
+            }}
+          >
+            攻击
+          </p>
+          <p
+            onClick={() => {
+              waitForNextTurn();
+            }}
+          >
+            待机
+          </p>
+        </StyledMenu>
+      )}
+    </StyledFigure>
   );
 };
 
