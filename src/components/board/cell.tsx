@@ -43,7 +43,7 @@ const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
     top: 0;
     width: 100%;
     height: 100%;
-    opacity: 0.4;
+    opacity: 0.35;
     background-image: url(${(props) => props.bg});
     background-repeat: no-repeat;
     background-position: 50% 0;

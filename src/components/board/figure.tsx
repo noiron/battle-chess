@@ -8,6 +8,8 @@ import archerIcon1 from 'assets/archer1.png';
 import archerIcon2 from 'assets/archer2.png';
 import cavalryIcon1 from 'assets/cavalry1.png';
 import cavalryIcon2 from 'assets/cavalry2.png';
+import infantryIcon1 from 'assets/infantry1.png';
+import infantryIcon2 from 'assets/infantry2.png';
 
 const StyledMenu = styled.div`
   position: absolute;
@@ -68,6 +70,7 @@ const logos: {
   knight: knightLogo,
   archer: [archerIcon1, archerIcon2],
   cavalry: [cavalryIcon1, cavalryIcon2],
+  infantry: [infantryIcon1, infantryIcon2],
 };
 
 const Figure = ({

@@ -50,26 +50,35 @@ type FigureType = {
 
 const figures: FigureType[] = [
   {
-    id: 1,
+    id: 10,
     x: 2,
-    y: 2,
-    type: 'knight',
+    y: 6,
+    type: 'archer',
     actionable: true,
     side: 'enemy',
-    name: '小张',
+    name: '曹操',
   },
   {
-    id: 2,
+    id: 11,
     x: 3,
-    y: 3,
-    type: 'king',
+    y: 5,
+    type: 'cavalry',
     actionable: true,
     side: 'enemy',
-    name: '小李',
+    name: '张辽',
   },
   {
-    id: 3,
-    x: 5,
+    id: 12,
+    x: 3,
+    y: 6,
+    type: 'infantry',
+    actionable: true,
+    side: 'enemy',
+    name: '许褚',
+  },
+  {
+    id: 1,
+    x: 7,
     y: 6,
     type: 'archer',
     actionable: true,
@@ -77,13 +86,22 @@ const figures: FigureType[] = [
     name: '赵云',
   },
   {
-    id: 4,
-    x: 7,
+    id: 2,
+    x: 8,
     y: 6,
     type: 'cavalry',
     actionable: true,
     side: 'ally',
     name: '张飞',
+  },
+  {
+    id: 3,
+    x: 9,
+    y: 5,
+    type: 'infantry',
+    actionable: true,
+    side: 'ally',
+    name: '关羽',
   },
 ];
 
@@ -95,13 +113,13 @@ const terrain: TERRAIN_TYPE[][] = [
   [1, 0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 2, 2, 2, 2, 2],
   [0, 0, 0, 2, 0, 0, 3, 3, 3, 3, 0, 0, 2, 2, 0, 0],
   [2, 2, 2, 2, 0, 0, 3, 1, 3, 3, 0, 0, 2, 2, 0, 0],
-  [4, 4, 4, 4, 4, 1, 1, 1, 0, 3, 0, 0, 0, 2, 2, 2],
-  [4, 4, 4, 4, 4, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-  [0, 0, 0, 4, 4, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0],
-  [3, 3, 3, 4, 4, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2, 0],
-  [3, 3, 3, 4, 4, 3, 3, 3, 0, 0, 0, 3, 3, 3, 3, 3],
-  [0, 0, 3, 4, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3, 3],
-  [0, 0, 3, 4, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3, 3],
+  [4, 4, 4, 4, 4, 4, 1, 1, 1, 0, 3, 0, 0, 0, 2, 2],
+  [4, 4, 4, 4, 4, 4, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 4, 4, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0],
+  [3, 3, 3, 0, 4, 4, 0, 0, 0, 0, 0, 2, 2, 2, 2, 2],
+  [3, 3, 3, 0, 4, 4, 3, 3, 3, 0, 0, 0, 3, 3, 3, 3],
+  [0, 3, 0, 0, 4, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3],
+  [0, 3, 0, 0, 4, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3],
 ];
 
 const getTerrain = (x: number, y: number) => {
@@ -394,7 +412,7 @@ const Board = (props: BoardProps) => {
             setShowFigureMenu(false);
           }}
         >
-          结束策略
+          结束回合
         </Button>
         <Button
           onClick={async () => {
