@@ -9,6 +9,7 @@ import { TERRAIN_TEXT, TERRAIN_TYPE, TROOP_MAP, TROOP_TYPE } from '@constants';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { delay } from '../../utils';
 import { checkInAttackRange, getMovementRange } from './utils';
+import { figures } from './data';
 
 const ROWS = 10;
 const COLS = 16;
@@ -49,69 +50,6 @@ export type FigureType = {
   name: string;
   life: number;
 };
-
-const figures: FigureType[] = [
-  {
-    id: 10,
-    x: 2,
-    y: 6,
-    type: 'archer',
-    actionable: true,
-    side: 'enemy',
-    name: '曹操',
-    life: 100,
-  },
-  {
-    id: 11,
-    x: 3,
-    y: 5,
-    type: 'cavalry',
-    actionable: true,
-    side: 'enemy',
-    name: '张辽',
-    life: 100,
-  },
-  {
-    id: 12,
-    x: 3,
-    y: 6,
-    type: 'infantry',
-    actionable: true,
-    side: 'enemy',
-    name: '许褚',
-    life: 100,
-  },
-  {
-    id: 1,
-    x: 7,
-    y: 6,
-    type: 'archer',
-    actionable: true,
-    side: 'ally',
-    name: '赵云',
-    life: 100,
-  },
-  {
-    id: 2,
-    x: 8,
-    y: 6,
-    type: 'cavalry',
-    actionable: true,
-    side: 'ally',
-    name: '张飞',
-    life: 100,
-  },
-  {
-    id: 3,
-    x: 9,
-    y: 5,
-    type: 'infantry',
-    actionable: true,
-    side: 'ally',
-    name: '关羽',
-    life: 100,
-  },
-];
 
 const StyledRow = styled.div`
   display: flex;
