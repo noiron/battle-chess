@@ -197,10 +197,9 @@ const Board = (props: BoardProps) => {
     }
   }, [selectedFigure]);
 
-  const moveFigure = (id: number, newPos: Pos, moveBack = false) => {
+  const moveFigure = (id: number, newPos: Pos, isAuto = false) => {
     const index = allFigures.findIndex((f) => f.id === id);
     const oldFigure = allFigures[index];
-    const { x: oldX, y: oldY } = oldFigure;
     const newFigure = Object.assign({}, oldFigure, {
       x: newPos.x,
       y: newPos.y,
@@ -215,15 +214,8 @@ const Board = (props: BoardProps) => {
 
     // 这里延迟是为了在棋子移动到位后再显示菜单
     setTimeout(() => {
-      setShowFigureMenu(true);
+      if (!isAuto) setShowFigureMenu(true);
     }, 500);
-
-    const timer = setTimeout(() => {
-      if (moveBack) {
-        moveFigure(oldFigure.id, { x: oldX, y: oldY }, false);
-      }
-      clearTimeout(timer);
-    }, 1000);
   };
 
   /** 点击操作菜单的攻击选项 */
@@ -246,6 +238,35 @@ const Board = (props: BoardProps) => {
     setFigureStatus('normal');
     setSelectedFigure(null);
     setShowFigureMenu(false);
+  };
+
+  /**
+   * 敌方行动
+   * 依次选中所有的敌方棋子，执行移动及攻击
+   */
+  const enemyAction = async () => {
+    const enemyFigures = allFigures.filter((f) => f.side === 'enemy');
+
+    for (let i = 0; i < enemyFigures.length; i++) {
+      const enemyFigure = enemyFigures[i];
+
+      setSelectedFigure(enemyFigure);
+      setFigureStatus('move');
+      await delay(1500);
+      // TODO: 暂时保持原地
+      moveFigure(enemyFigure.id, { x: enemyFigure.x, y: enemyFigure.y }, true);
+
+      // 检查是否有我方棋子在攻击范围内，如果有，则攻击
+      const inRangeFigures = allFigures.filter((f) => {
+        return f.side === 'ally' && checkInAttackRange(f.x, f.y, enemyFigure);
+      });
+      setFigureStatus('attack');
+      await delay(1500);
+      if (inRangeFigures.length > 0) {
+        message.info(`${enemyFigure.name} 攻击了 ${inRangeFigures[0].name}`);
+        setFigureStatus('normal');
+      }
+    }
   };
 
   return (
@@ -277,7 +298,7 @@ const Board = (props: BoardProps) => {
                         isAvailable &&
                         figureStatus === 'move'
                       ) {
-                        moveFigure(selectedFigure.id, { x, y }, false);
+                        moveFigure(selectedFigure.id, { x, y });
                         return;
                       }
                       // 攻击
@@ -394,8 +415,8 @@ const Board = (props: BoardProps) => {
             : ''}
         </span>
         <Button
-          onClick={() => {
-            // TODO: 敌方策略
+          onClick={async () => {
+            await enemyAction();
 
             const newFigures = allFigures.map((figure) => {
               return Object.assign({}, figure, {
