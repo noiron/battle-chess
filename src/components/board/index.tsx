@@ -8,6 +8,7 @@ import Figure from './figure';
 import { TERRAIN_TEXT, TERRAIN_TYPE, TROOP_MAP, TROOP_TYPE } from '@constants';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { delay } from '../../utils';
+import { checkInAttackRange, getMovementRange } from './utils';
 
 const ROWS = 10;
 const COLS = 16;
@@ -36,7 +37,7 @@ const StyledBoard = styled.div`
   }
 `;
 
-type FigureType = {
+export type FigureType = {
   id: number;
   x: number;
   y: number;
@@ -166,32 +167,7 @@ const Board = (props: BoardProps) => {
 
   useEffect(() => {
     if (selectedFigure) {
-      const { x, y, type } = selectedFigure;
-
-      // TODO: 如何通用判断可移动位置
-      if (type === 'knight') {
-        setAvailablePos([
-          { x: x, y: y - 1 },
-          { x: x, y: y - 2 },
-          { x: x, y: y + 1 },
-          { x: x, y: y + 2 },
-          { x: x - 1, y: y },
-          { x: x - 2, y: y },
-          { x: x + 1, y: y },
-          { x: x + 2, y: y },
-        ]);
-      } else {
-        setAvailablePos([
-          { x: x - 1, y: y - 1 },
-          { x: x, y: y - 1 },
-          { x: x + 1, y: y - 1 },
-          { x: x - 1, y: y },
-          { x: x + 1, y: y },
-          { x: x - 1, y: y + 1 },
-          { x: x, y: y + 1 },
-          { x: x + 1, y: y + 1 },
-        ]);
-      }
+      setAvailablePos(getMovementRange(selectedFigure));
     } else {
       setAvailablePos([]);
     }
@@ -258,7 +234,10 @@ const Board = (props: BoardProps) => {
 
       // 检查是否有我方棋子在攻击范围内，如果有，则攻击
       const inRangeFigures = allFigures.filter((f) => {
-        return f.side === 'ally' && checkInAttackRange(f.x, f.y, enemyFigure);
+        return (
+          f.side === 'ally' &&
+          checkInAttackRange(enemyFigure, { x: f.x, y: f.y })
+        );
       });
       setFigureStatus('attack');
       await delay(1500);
@@ -284,7 +263,7 @@ const Board = (props: BoardProps) => {
                   x === selectedFigure?.x && y === selectedFigure?.y;
 
                 const isInAttackRange = selectedFigure
-                  ? checkInAttackRange(x, y, selectedFigure)
+                  ? checkInAttackRange(selectedFigure, { x, y })
                   : false;
 
                 return (
@@ -370,7 +349,10 @@ const Board = (props: BoardProps) => {
                 if (
                   selectedFigure.id !== figure.id &&
                   figureStatus === 'attack' &&
-                  checkInAttackRange(figure.x, figure.y, selectedFigure) &&
+                  checkInAttackRange(selectedFigure, {
+                    x: figure.x,
+                    y: figure.y,
+                  }) &&
                   figure.side !== 'ally'
                 ) {
                   message.info('执行攻击，对方生命值减少');
@@ -394,6 +376,17 @@ const Board = (props: BoardProps) => {
                   setFigureStatus('normal');
                   setSelectedFigure(null);
                   return;
+                }
+
+                // 点击了另一个我方可移动棋子
+                if (
+                  selectedFigure.id !== figure.id &&
+                  figureStatus === 'move' &&
+                  figure.side === 'ally' &&
+                  figure.actionable === true
+                ) {
+                  setFigureStatus('move');
+                  setSelectedFigure(figure);
                 }
               }}
             />
@@ -453,9 +446,5 @@ const Board = (props: BoardProps) => {
     </StyledBoard>
   );
 };
-
-function checkInAttackRange(x: number, y: number, figure: FigureType) {
-  return Math.abs(x - figure.x) <= 1 && Math.abs(y - figure.y) <= 1;
-}
 
 export default Board;
