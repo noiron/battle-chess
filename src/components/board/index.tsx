@@ -104,7 +104,7 @@ type Actions =
     }
   | {
       type: 'action';
-      figure?: FigureType;
+      figure?: FigureType | null;
       showMenu: boolean;
     };
 
@@ -190,11 +190,16 @@ const Board = (props: BoardProps) => {
 
   /** 根据 ID 更新棋子的部分属性 */
   const updateFigure = (id: number, newFigureProps: Partial<FigureType>) => {
-    const index = allFigures.findIndex((f) => f.id === id);
-    const oldFigure = allFigures[index];
-    const newFigure = Object.assign({}, oldFigure, newFigureProps);
-    allFigures.splice(index, 1, newFigure);
-    setAllFigures([...allFigures]);
+    let newFigure = null;
+    setAllFigures((allFigures) => {
+      const index = allFigures.findIndex((f) => f.id === id);
+      if (index === -1) return allFigures;
+
+      const oldFigure = allFigures[index];
+      newFigure = Object.assign({}, oldFigure, newFigureProps);
+      allFigures.splice(index, 1, newFigure);
+      return [...allFigures];
+    });
     return newFigure;
   };
 
@@ -254,9 +259,25 @@ const Board = (props: BoardProps) => {
 
       await delay(1500);
       if (inRangeFigures.length > 0) {
-        message.info(`${enemyFigure.name} 攻击了 ${inRangeFigures[0].name}`);
+        attack(enemyFigure, inRangeFigures[0]);
         dispatch({ type: 'normal' });
       }
+    }
+  };
+
+  const attack = async (source: FigureType, target: FigureType) => {
+    const injure = 20;
+    message.info(`${source.name} 攻击了 ${target.name}，造成了 ${injure} 点伤害`);
+    await delay(1000);
+    const remainLife = target.life - injure;
+    updateFigure(target.id, { life: remainLife });
+    updateFigure(source.id, { actionable: false });
+
+    if (remainLife <= 0) {
+      message.info(`${target.name} 被击败了`);
+      setAllFigures((allFigures) => [
+        ...allFigures.filter((f) => f.id !== target.id),
+      ]);
     }
   };
 
@@ -368,9 +389,7 @@ const Board = (props: BoardProps) => {
                   }) &&
                   figure.side !== 'ally'
                 ) {
-                  message.info('执行攻击，对方生命值减少');
-
-                  updateFigure(selectedFigure.id, { actionable: false });
+                  attack(selectedFigure, figure);
                   // 重置选中棋子状态
                   dispatch({ type: 'normal' });
                   return;
@@ -407,13 +426,14 @@ const Board = (props: BoardProps) => {
         <Button
           onClick={async () => {
             await enemyAction();
-
-            const newFigures = allFigures.map((figure) => {
-              return Object.assign({}, figure, {
-                actionable: true,
+            setAllFigures((allFigures) => {
+              const newFigures = allFigures.map((figure) => {
+                return Object.assign({}, figure, {
+                  actionable: true,
+                });
               });
+              return newFigures;
             });
-            setAllFigures(newFigures);
 
             setDays(days + 1);
 
