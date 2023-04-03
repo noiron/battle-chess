@@ -1,5 +1,5 @@
 import { useEffect, useState, useReducer } from 'react';
-import { Button, message } from 'antd';
+import { Button, message, Modal } from 'antd';
 import lodash from 'lodash';
 import styled from 'styled-components';
 import { Pos } from '../../types';
@@ -157,6 +157,7 @@ const Board = (props: BoardProps) => {
   const [allFigures, setAllFigures] = useState([...figures]);
   const [availablePos, setAvailablePos] = useState<Pos[]>([]);
   const [days, setDays] = useState(1);
+  const [isGameOver, setIsGameOver] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -266,8 +267,10 @@ const Board = (props: BoardProps) => {
   };
 
   const attack = async (source: FigureType, target: FigureType) => {
-    const injure = 20;
-    message.info(`${source.name} 攻击了 ${target.name}，造成了 ${injure} 点伤害`);
+    const injure = 50;
+    message.info(
+      `${source.name} 攻击了 ${target.name}，造成了 ${injure} 点伤害`
+    );
     await delay(1000);
     const remainLife = target.life - injure;
     updateFigure(target.id, { life: remainLife });
@@ -279,6 +282,42 @@ const Board = (props: BoardProps) => {
         ...allFigures.filter((f) => f.id !== target.id),
       ]);
     }
+  };
+
+  // fixme: 棋子仅移动而没有攻击时，也会修改 allFigures，导致重新调用
+  useEffect(() => {
+    if (isGameOver) return;
+
+    checkResult();
+  }, [allFigures]);
+
+  /** 胜利结算 */
+  const checkResult = () => {
+    const isAlive = (f: FigureType) => f.life > 0;
+
+    const aliveAllies = allFigures
+      .filter((f) => f.side === 'ally')
+      .filter(isAlive);
+    const lose = aliveAllies.length === 0;
+
+    const aliveEnemies = allFigures
+      .filter((f) => f.side === 'enemy')
+      .filter(isAlive);
+    const win = aliveEnemies.length === 0;
+
+    if (!win && !lose) return;
+
+    setIsGameOver(true);
+
+    setTimeout(() => {
+      message.destroy();
+      Modal.info({
+        title: win ? '🎉 我方胜利 🎉' : '💀 我方战败 💀',
+        content: null,
+        onOk() {},
+        okText: '阅',
+      });
+    }, 2000);
   };
 
   return (

@@ -57,11 +57,10 @@ const StartPage = () => {
       </Button>
       <Button
         onClick={() => {
-          console.log('读取游戏');
           navigate('/battle');
         }}
       >
-        读取游戏
+        快速战斗
       </Button>
 
       {isModalOpen && (
