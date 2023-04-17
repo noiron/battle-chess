@@ -79,7 +79,7 @@ const terrain: TERRAIN_TYPE[][] = [
   [0, 3, 0, 0, 4, 4, 2, 2, 2, 2, 0, 0, 0, 0, 3, 3],
 ];
 
-const getTerrain = (x: number, y: number) => {
+const getTerrain = ({ x, y }: Pos) => {
   // 以下两行仅做测试
   // x = x % terrain[0].length;
   // y = y % terrain.length;
@@ -350,6 +350,85 @@ const Board = (props: BoardProps) => {
     navigate('/country');
   };
 
+  const clickCell = ({
+    pos,
+    isAvailable,
+    isInAttackRange,
+  }: {
+    pos: Pos;
+    isAvailable: boolean;
+    isInAttackRange: boolean;
+  }) => {
+    const selectedFigure = figureState.selectedFigure;
+
+    // 移动选中的棋子至这个位置
+    if (selectedFigure && isAvailable && figureState.status === 'move') {
+      moveFigure(selectedFigure.id, pos);
+      return;
+    }
+    // 攻击
+    if (selectedFigure && isInAttackRange && figureState.status === 'attack') {
+      message.info('无效的攻击目标');
+      // 重置棋子状态至操作选择状态
+      dispatch({ type: 'action', showMenu: true });
+      return;
+    }
+
+    setClickEntity({
+      entityType: 'terrain',
+      pos,
+      terrain: getTerrain(pos),
+    });
+  };
+
+  const clickFigure = (figure: FigureType) => {
+    const selectedFigure = figureState.selectedFigure;
+
+    setClickEntity({ entityType: 'figure', ...figure });
+    // 当前没有选中的棋子
+    if (!selectedFigure) {
+      // 如果这个棋子不可操作，则不做任何处理
+      if (!figure.actionable || figure.side !== 'ally') {
+        return;
+      }
+      // 选中当前棋子
+      dispatch({ type: 'move', figure });
+      return;
+    }
+
+    // 如果选中的棋子是当前棋子，且棋子已处于待移动状态，则进入操作选择状态
+    if (selectedFigure.id === figure.id && figureState.status === 'move') {
+      dispatch({ type: 'action', showMenu: true });
+      return;
+    }
+
+    // 点击了非选中状态的棋子
+    if (
+      selectedFigure.id !== figure.id &&
+      figureState.status === 'attack' &&
+      checkInAttackRange(selectedFigure, {
+        x: figure.x,
+        y: figure.y,
+      }) &&
+      figure.side !== 'ally'
+    ) {
+      attack(selectedFigure, figure);
+      // 重置选中棋子状态
+      dispatch({ type: 'normal' });
+      return;
+    }
+
+    // 点击了另一个我方可移动棋子
+    if (
+      selectedFigure.id !== figure.id &&
+      figureState.status === 'move' &&
+      figure.side === 'ally' &&
+      figure.actionable === true
+    ) {
+      dispatch({ type: 'move', figure });
+    }
+  };
+
   return (
     <StyledBoard>
       <div className="inner">
@@ -374,37 +453,11 @@ const Board = (props: BoardProps) => {
                   <Cell
                     key={x}
                     isSelected={isSelected}
-                    onClick={() => {
-                      // 移动选中的棋子至这个位置
-                      if (
-                        selectedFigure &&
-                        isAvailable &&
-                        figureState.status === 'move'
-                      ) {
-                        moveFigure(selectedFigure.id, { x, y });
-                        return;
-                      }
-                      // 攻击
-                      if (
-                        selectedFigure &&
-                        isInAttackRange &&
-                        figureState.status === 'attack'
-                      ) {
-                        message.info('无效的攻击目标');
-                        // 重置棋子状态至操作选择状态
-                        dispatch({ type: 'action', showMenu: true });
-
-                        return;
-                      }
-
-                      setClickEntity({
-                        entityType: 'terrain',
-                        pos: { x, y },
-                        terrain: getTerrain(x, y),
-                      });
-                    }}
+                    onClick={() =>
+                      clickCell({ pos: { x, y }, isAvailable, isInAttackRange })
+                    }
                     isAvailable={isAvailable}
-                    terrain={getTerrain(x, y)}
+                    terrain={getTerrain({ x, y })}
                     isInAttackRange={isInAttackRange}
                     figureStatus={figureState.status}
                   />
@@ -426,54 +479,7 @@ const Board = (props: BoardProps) => {
               attackAction={attackAction}
               waitForNextTurn={waitForNextTurn}
               showMenu={isSelected && figureState.showMenu}
-              onClick={() => {
-                setClickEntity({ entityType: 'figure', ...figure });
-                // 当前没有选中的棋子
-                if (!selectedFigure) {
-                  // 如果这个棋子不可操作，则不做任何处理
-                  if (!figure.actionable || figure.side !== 'ally') {
-                    return;
-                  }
-                  // 选中当前棋子
-                  dispatch({ type: 'move', figure });
-                  return;
-                }
-
-                // 如果选中的棋子是当前棋子，且棋子已处于待移动状态，则进入操作选择状态
-                if (
-                  selectedFigure.id === figure.id &&
-                  figureState.status === 'move'
-                ) {
-                  dispatch({ type: 'action', showMenu: true });
-                  return;
-                }
-
-                // 点击了非选中状态的棋子
-                if (
-                  selectedFigure.id !== figure.id &&
-                  figureState.status === 'attack' &&
-                  checkInAttackRange(selectedFigure, {
-                    x: figure.x,
-                    y: figure.y,
-                  }) &&
-                  figure.side !== 'ally'
-                ) {
-                  attack(selectedFigure, figure);
-                  // 重置选中棋子状态
-                  dispatch({ type: 'normal' });
-                  return;
-                }
-
-                // 点击了另一个我方可移动棋子
-                if (
-                  selectedFigure.id !== figure.id &&
-                  figureState.status === 'move' &&
-                  figure.side === 'ally' &&
-                  figure.actionable === true
-                ) {
-                  dispatch({ type: 'move', figure });
-                }
-              }}
+              onClick={() => clickFigure(figure)}
             />
           );
         })}
