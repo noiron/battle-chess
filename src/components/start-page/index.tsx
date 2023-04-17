@@ -26,7 +26,7 @@ const StyledBox = styled.div`
 
 const StartPage = () => {
   const [faction, setFaction] = useState('魏');
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 

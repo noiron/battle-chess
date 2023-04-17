@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Pos } from '../../types';
 import Cell from './cell';
 import Figure from './figure';
-import { TERRAIN_TEXT, TERRAIN_TYPE, TROOP_MAP, TROOP_TYPE } from '@constants';
+import { TERRAIN_TYPE, TROOP_TYPE } from '@constants';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { delay } from '../../utils';
 import { checkInAttackRange, getMovementRange } from './utils';
@@ -97,8 +97,6 @@ const getTerrain = ({ x, y }: Pos) => {
 // 5.2 执行了攻击，则回到状态1
 type FigureStatus = 'normal' | 'move' | 'action' | 'attack';
 
-interface BoardProps {}
-
 interface FigureState {
   status: FigureStatus;
   showMenu: boolean;
@@ -164,7 +162,7 @@ function reducer(state: FigureState, action: Actions): FigureState {
   }
 }
 
-const Board = (props: BoardProps) => {
+const Board = () => {
   const [allFigures, setAllFigures] = useState([...figures]);
   const [availablePos, setAvailablePos] = useState<Pos[]>([]);
   const [days, setDays] = useState(1);
@@ -315,6 +313,7 @@ const Board = (props: BoardProps) => {
       Modal.info({
         title: win ? '🎉 我方胜利 🎉' : '💀 我方战败 💀',
         content: null,
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
         onOk() {},
         okText: '阅',
       });
