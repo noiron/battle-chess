@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { delay } from '../../utils';
 import { checkInAttackRange, getMovementRange } from './utils';
 import { figures } from './data';
+import BottomInfo from './bottom-info';
 
 const ROWS = 10;
 const COLS = 16;
@@ -50,6 +51,16 @@ export type FigureType = {
   name: string;
   life: number;
 };
+
+export type ClickEntity =
+  | {
+      entityType: 'terrain';
+      pos: Pos;
+      terrain: TERRAIN_TYPE;
+    }
+  | ({
+      entityType: 'figure';
+    } & FigureType);
 
 const StyledRow = styled.div`
   display: flex;
@@ -169,17 +180,7 @@ const Board = (props: BoardProps) => {
     selectedFigure: null,
   });
 
-  const [clickEntity, setClickEntity] = useState<
-    | {
-        entityType: 'terrain';
-        pos: Pos;
-        terrain: TERRAIN_TYPE;
-      }
-    | ({
-        entityType: 'figure';
-      } & FigureType)
-    | null
-  >(null);
+  const [clickEntity, setClickEntity] = useState<ClickEntity | null>(null);
 
   useEffect(() => {
     if (figureState.selectedFigure) {
@@ -320,6 +321,35 @@ const Board = (props: BoardProps) => {
     }, 2000);
   };
 
+  /** 结束当前回合 */
+  const endThisTurn = async () => {
+    await enemyAction();
+    setAllFigures((allFigures) => {
+      const newFigures = allFigures.map((figure) => {
+        return Object.assign({}, figure, {
+          actionable: true,
+        });
+      });
+      return newFigures;
+    });
+
+    setDays(days + 1);
+
+    // 状态重置
+    dispatch({ type: 'normal' });
+  };
+
+  const endBattle = async () => {
+    const {
+      state: { war },
+    } = location;
+    if (war) {
+      message.info(`终止进攻 ${war.target}，返回 ${war.source}`);
+      await delay(2000);
+    }
+    navigate('/country');
+  };
+
   return (
     <StyledBoard>
       <div className="inner">
@@ -451,51 +481,9 @@ const Board = (props: BoardProps) => {
 
       <div className="info">
         <span>第 {days} 天</span>
-        <span
-          style={{
-            width: 150,
-          }}
-        >
-          {clickEntity?.entityType === 'terrain'
-            ? TERRAIN_TEXT[clickEntity.terrain]
-            : clickEntity?.entityType === 'figure'
-            ? clickEntity.name + '(' + TROOP_MAP[clickEntity.type] + ')'
-            : ''}
-        </span>
-        <Button
-          onClick={async () => {
-            await enemyAction();
-            setAllFigures((allFigures) => {
-              const newFigures = allFigures.map((figure) => {
-                return Object.assign({}, figure, {
-                  actionable: true,
-                });
-              });
-              return newFigures;
-            });
-
-            setDays(days + 1);
-
-            // 状态重置
-            dispatch({ type: 'normal' });
-          }}
-        >
-          结束回合
-        </Button>
-        <Button
-          onClick={async () => {
-            const {
-              state: { war },
-            } = location;
-            if (war) {
-              message.info(`终止进攻 ${war.target}，返回 ${war.source}`);
-              await delay(2000);
-            }
-            navigate('/country');
-          }}
-        >
-          结束战斗
-        </Button>
+        <BottomInfo clickEntity={clickEntity} />
+        <Button onClick={endThisTurn}>结束回合</Button>
+        <Button onClick={endBattle}>结束战斗</Button>
       </div>
     </StyledBoard>
   );
