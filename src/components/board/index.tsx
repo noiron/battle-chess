@@ -2,13 +2,13 @@ import { useEffect, useState, useRef } from 'react';
 import { Button, message, Modal } from 'antd';
 import lodash from 'lodash';
 import styled from 'styled-components';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Pos } from '../../types';
+import { TERRAIN_TYPE, TROOP_TYPE } from '@constants';
+import { delay } from '../../utils';
 import Cell from './cell';
 import Figure from './figure';
-import { TERRAIN_TYPE, TROOP_TYPE } from '@constants';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { delay } from '../../utils';
-import { checkInAttackRange, getMovementRange } from './utils';
+import { checkInAttackRange, getMovementRange } from './logic';
 import BottomInfo from './bottom-info';
 import { useBattleStore } from './store';
 import { terrain } from './data';
@@ -95,11 +95,6 @@ const Board = () => {
     allFiguresRef.current = allFigures;
   }, [allFigures]);
 
-  const [availablePos, setAvailablePos] = useState<Pos[]>([]);
-  const [days, addADay] = useBattleStore((state) => [
-    state.days,
-    state.addADay,
-  ]);
   const [isGameOver, setIsGameOver] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -122,6 +117,12 @@ const Board = () => {
 
   const [clickEntity, setClickEntity] = useState<ClickEntity | null>(null);
 
+  const [days, addADay] = useBattleStore((state) => [
+    state.days,
+    state.addADay,
+  ]);
+
+  const [availablePos, setAvailablePos] = useState<Pos[]>([]);
   useEffect(() => {
     if (figureState.selectedFigure) {
       setAvailablePos(getMovementRange(figureState.selectedFigure));
@@ -171,7 +172,7 @@ const Board = () => {
       const enemyFigure = enemyFigures[i];
       setFigureMove(enemyFigure);
 
-      await delay(1500);
+      await delay(1000);
       // TODO: 暂时保持原地
       moveFigure(enemyFigure.id, { x: enemyFigure.x, y: enemyFigure.y }, true);
 
@@ -184,7 +185,7 @@ const Board = () => {
       });
       setFigureAttack();
 
-      await delay(1500);
+      await delay(1000);
       if (inRangeFigures.length > 0) {
         attack(enemyFigure, inRangeFigures[0]);
         setFigureNormal();

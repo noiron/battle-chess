@@ -7,10 +7,10 @@ import { FigureType } from '.';
 export function getMovementRange(figure: FigureType) {
   const { type: figureType, x, y } = figure;
   const ranges: Pos[] = [];
+  const MAX = 2;
 
   switch (figureType) {
     case 'cavalry':
-      const MAX = 2;
       for (let i = x - MAX; i <= x + MAX; i++) {
         for (let j = y - MAX; j <= y + MAX; j++) {
           if (i === x && j === y) continue;
