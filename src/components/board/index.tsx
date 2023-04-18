@@ -1,4 +1,4 @@
-import { useEffect, useState, useReducer } from 'react';
+import { useEffect, useState, useReducer, useRef } from 'react';
 import { Button, message, Modal } from 'antd';
 import lodash from 'lodash';
 import styled from 'styled-components';
@@ -9,8 +9,8 @@ import { TERRAIN_TYPE, TROOP_TYPE } from '@constants';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { delay } from '../../utils';
 import { checkInAttackRange, getMovementRange } from './utils';
-import { figures } from './data';
 import BottomInfo from './bottom-info';
+import { useBattleStore } from './store';
 
 const ROWS = 10;
 const COLS = 16;
@@ -163,9 +163,29 @@ function reducer(state: FigureState, action: Actions): FigureState {
 }
 
 const Board = () => {
-  const [allFigures, setAllFigures] = useState([...figures]);
+  const { allFigures, updateFigure, removeFigureById, enableAllFigures } =
+    useBattleStore((state) => {
+      const { allFigures, updateFigure, removeFigureById, enableAllFigures } =
+        state;
+      return {
+        allFigures,
+        updateFigure,
+        removeFigureById,
+        enableAllFigures,
+      };
+    });
+
+  // 部分逻辑（如对面行动时）需要获得即时数据，使用 ref 来保存
+  const allFiguresRef = useRef(allFigures);
+  useEffect(() => {
+    allFiguresRef.current = allFigures;
+  }, [allFigures]);
+
   const [availablePos, setAvailablePos] = useState<Pos[]>([]);
-  const [days, setDays] = useState(1);
+  const [days, addADay] = useBattleStore((state) => [
+    state.days,
+    state.addADay,
+  ]);
   const [isGameOver, setIsGameOver] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -187,21 +207,6 @@ const Board = () => {
       setAvailablePos([]);
     }
   }, [figureState.selectedFigure]);
-
-  /** 根据 ID 更新棋子的部分属性 */
-  const updateFigure = (id: number, newFigureProps: Partial<FigureType>) => {
-    let newFigure = null;
-    setAllFigures((allFigures) => {
-      const index = allFigures.findIndex((f) => f.id === id);
-      if (index === -1) return allFigures;
-
-      const oldFigure = allFigures[index];
-      newFigure = Object.assign({}, oldFigure, newFigureProps);
-      allFigures.splice(index, 1, newFigure);
-      return [...allFigures];
-    });
-    return newFigure;
-  };
 
   const moveFigure = (id: number, newPos: Pos, isAuto = false) => {
     const newFigure = updateFigure(id, {
@@ -249,7 +254,7 @@ const Board = () => {
       moveFigure(enemyFigure.id, { x: enemyFigure.x, y: enemyFigure.y }, true);
 
       // 检查是否有我方棋子在攻击范围内，如果有，则攻击
-      const inRangeFigures = allFigures.filter((f) => {
+      const inRangeFigures = allFiguresRef.current.filter((f) => {
         return (
           f.side === 'ally' &&
           checkInAttackRange(enemyFigure, { x: f.x, y: f.y })
@@ -277,9 +282,7 @@ const Board = () => {
 
     if (remainLife <= 0) {
       message.info(`${target.name} 被击败了`);
-      setAllFigures((allFigures) => [
-        ...allFigures.filter((f) => f.id !== target.id),
-      ]);
+      removeFigureById(target.id);
     }
   };
 
@@ -310,6 +313,7 @@ const Board = () => {
 
     setTimeout(() => {
       message.destroy();
+      Modal.destroyAll();
       Modal.info({
         title: win ? '🎉 我方胜利 🎉' : '💀 我方战败 💀',
         content: null,
@@ -323,16 +327,8 @@ const Board = () => {
   /** 结束当前回合 */
   const endThisTurn = async () => {
     await enemyAction();
-    setAllFigures((allFigures) => {
-      const newFigures = allFigures.map((figure) => {
-        return Object.assign({}, figure, {
-          actionable: true,
-        });
-      });
-      return newFigures;
-    });
-
-    setDays(days + 1);
+    enableAllFigures();
+    addADay();
 
     // 状态重置
     dispatch({ type: 'normal' });

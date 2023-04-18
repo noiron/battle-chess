@@ -37,6 +37,8 @@ export function checkInAttackRange(figure: FigureType, { x, y }: Pos) {
   const xDist = Math.abs(x - figure.x);
   const yDist = Math.abs(y - figure.y);
 
+  // return true;
+
   switch (figureType) {
     case 'cavalry':
       // 骑兵只能攻击直线
