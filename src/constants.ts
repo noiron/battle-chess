@@ -1,3 +1,5 @@
+export const CELL_SIZE = 36;
+
 // 定义不同的地形
 export const MOUNTAIN = 1;
 export const GRASS = 2;

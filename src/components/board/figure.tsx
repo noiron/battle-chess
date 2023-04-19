@@ -1,6 +1,6 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { useState } from 'react';
-import { CELL_SIZE } from './cell';
+import { CELL_SIZE } from '@constants';
 import { useInterval } from '../../utils';
 import knightLogo from '../../assets/knight-black.svg';
 import kingLogo from '../../assets/king-white.svg';
@@ -33,10 +33,11 @@ const StyledFigure = styled.div<{
   top: number;
   left: number;
   isSelected: boolean;
+  isAlly: boolean;
 }>`
-  width: ${CELL_SIZE - 2}px;
-  height: ${CELL_SIZE - 2}px;
-  padding: 4px 2px 0;
+  width: ${CELL_SIZE - 8}px;
+  height: ${CELL_SIZE - 8}px;
+  padding: 4px 4px 0;
   position: absolute;
   top: ${(props) => props.top}px;
   left: ${(props) => props.left}px;
@@ -46,7 +47,24 @@ const StyledFigure = styled.div<{
   img {
     width: 100%;
     height: 100%;
+    background: rgba(255, 255, 255, 0.7);
   }
+
+  ${(props) =>
+    props.isAlly &&
+    css`
+      &::after {
+        content: ' ';
+        width: 2px;
+        height: 2px;
+        position: absolute;
+        bottom: -4px;
+        left: calc(50% - 7px);
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-bottom: 3px solid #666;
+      }
+    `}
 `;
 
 interface FigureProps {
@@ -84,6 +102,7 @@ const Figure = ({
   waitForNextTurn,
   showMenu,
   actionable,
+  side,
 }: FigureProps) => {
   const xPixel = x * CELL_SIZE;
   const yPixel = y * CELL_SIZE;
@@ -110,7 +129,12 @@ const Figure = ({
   }, 500);
 
   return (
-    <StyledFigure top={yPixel} left={xPixel} isSelected={isSelected}>
+    <StyledFigure
+      top={yPixel}
+      left={xPixel}
+      isSelected={isSelected}
+      isAlly={side === 'ally'}
+    >
       <img
         id={`figure-${id}`}
         src={logo}

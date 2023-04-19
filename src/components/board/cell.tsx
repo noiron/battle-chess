@@ -1,13 +1,11 @@
 import styled from 'styled-components';
-import { GRASS, MOUNTAIN, TERRAIN_TYPE, TREE, WATER } from '@constants';
+import { CELL_SIZE, GRASS, MOUNTAIN, TERRAIN_TYPE, TREE, WATER } from '@constants';
 import mountainImg from 'assets/mountain.svg';
 import grassImg from 'assets/grass.svg';
 import treeImg from 'assets/tree.svg';
 import waterImg from 'assets/water.svg';
 import cursorImg from 'assets/cursor.png';
 import swordImg from 'assets/sword.png';
-
-export const CELL_SIZE = 32;
 
 const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
   width: ${CELL_SIZE}px;
@@ -26,6 +24,8 @@ const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    z-index: 110;
+    pointer-events: none;
 
     &.move {
       background: url(${cursorImg}) no-repeat center center / 80%;
