@@ -52,7 +52,11 @@ export function checkInAttackRange(figure: FigureType, { x, y }: Pos) {
       return false;
 
     default:
-      return Math.abs(x - figure.x) <= 1 && Math.abs(y - figure.y) <= 1;
+      return (
+        Math.abs(x - figure.x) <= 1 &&
+        Math.abs(y - figure.y) <= 1 &&
+        (x !== figure.x || y !== figure.y)
+      );
   }
 }
 
@@ -68,7 +72,7 @@ export function chooseMovePosition(
 
   // 没有可选位置时，返回原位置
   if (availablePos.length === 0) {
-    return {x: enemyFigure.x, y: enemyFigure.y };
+    return { x: enemyFigure.x, y: enemyFigure.y };
   }
 
   const opponents = allFigures.filter((f) => f.side !== enemyFigure.side);
@@ -76,8 +80,12 @@ export function chooseMovePosition(
 
   // 优先移动到对手中心位置
   availablePos.sort((a, b) => {
-    const aDist = Math.abs(a.x - opponentsCenterPos.x) + Math.abs(a.y - opponentsCenterPos.y);
-    const bDist = Math.abs(b.x - opponentsCenterPos.x) + Math.abs(b.y - opponentsCenterPos.y);
+    const aDist =
+      Math.abs(a.x - opponentsCenterPos.x) +
+      Math.abs(a.y - opponentsCenterPos.y);
+    const bDist =
+      Math.abs(b.x - opponentsCenterPos.x) +
+      Math.abs(b.y - opponentsCenterPos.y);
     return aDist - bDist;
   });
   return availablePos[0];

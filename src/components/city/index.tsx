@@ -35,7 +35,7 @@ interface CityProps {
   selectTargetCity: (city: string) => void;
 }
 
-let timer: any = null;
+let timer = 0;
 
 const City = (props: CityProps) => {
   const { x, y, name, isActive, setMessage, info, mode } = props;

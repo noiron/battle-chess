@@ -35,14 +35,14 @@ class Game {
 
   characters: Character[] = [];
 
-  year: number = 200;
-  month: number = 1;
+  year = 200;
+  month = 1;
 
   constructor() {
     this.init();
   }
 
-  initFaction = (faction: string = '') => {
+  initFaction = (faction = '') => {
     this.playerFaction = faction;
   };
 

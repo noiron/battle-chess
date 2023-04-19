@@ -44,6 +44,8 @@ const StyledBoard = styled.div`
   }
 `;
 
+type Side = 'enemy' | 'ally';
+
 export type FigureType = {
   id: number;
   x: number;
@@ -52,7 +54,7 @@ export type FigureType = {
   /** 是否可执行操作 */
   actionable: boolean;
   /** 区分敌我 */
-  side: 'enemy' | 'ally';
+  side: Side;
   name: string;
   life: number;
 };
@@ -99,7 +101,6 @@ const Board = () => {
     allFiguresRef.current = allFigures;
   }, [allFigures]);
 
-  const [isGameOver, setIsGameOver] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -118,6 +119,9 @@ const Board = () => {
     state.setFigureAttack,
     state.setFigureShowMenu,
   ]);
+
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [whoseTurn, setWhoseTurn] = useState<Side>('ally');
 
   const [clickEntity, setClickEntity] = useState<ClickEntity | null>(null);
 
@@ -172,6 +176,7 @@ const Board = () => {
    * 依次选中所有的敌方棋子，执行移动及攻击
    */
   const enemyAction = async () => {
+    setWhoseTurn('enemy');
     const enemyFigures = allFigures.filter((f) => f.side === 'enemy');
 
     for (let i = 0; i < enemyFigures.length; i++) {
@@ -194,10 +199,15 @@ const Board = () => {
       await delay(500);
       if (inRangeFigures.length > 0) {
         // 随机选择一个目标
-        attack(enemyFigure, inRangeFigures[lodash.random(0, inRangeFigures.length - 1)]);
+        attack(
+          enemyFigure,
+          inRangeFigures[lodash.random(0, inRangeFigures.length - 1)]
+        );
         setFigureNormal();
       }
     }
+
+    setWhoseTurn('ally');
   };
 
   const attack = async (source: FigureType, target: FigureType) => {
@@ -413,8 +423,12 @@ const Board = () => {
       <div className="info">
         <span>第 {days} 天</span>
         <BottomInfo clickEntity={clickEntity} />
-        <Button onClick={endThisTurn}>结束回合</Button>
-        <Button onClick={endBattle}>结束战斗</Button>
+        <Button onClick={endThisTurn} disabled={whoseTurn === 'enemy'}>
+          结束回合
+        </Button>
+        <Button onClick={endBattle} disabled={whoseTurn === 'enemy'}>
+          结束战斗
+        </Button>
       </div>
     </StyledBoard>
   );
