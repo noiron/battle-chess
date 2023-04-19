@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CELL_SIZE } from '@constants';
 import { useInterval } from '../../utils';
 import knightLogo from '../../assets/knight-black.svg';
@@ -80,6 +80,7 @@ interface FigureProps {
   actionable: boolean;
   side: 'ally' | 'enemy';
   cancelMove: () => void;
+  life: number;
 }
 
 const logos: {
@@ -91,6 +92,24 @@ const logos: {
   cavalry: [cavalryIcon1, cavalryIcon2],
   infantry: [infantryIcon1, infantryIcon2],
 };
+
+const LifeBar = styled.div<{ percent: number }>`
+  position: absolute;
+  top: 0;
+  left: 10%;
+  width: 70%;
+  height: 1px;
+  border: 1px solid #000;
+
+  .inner {
+    width: ${(props) => props.percent}%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: #f00;
+  }
+`;
 
 const Figure = ({
   x,
@@ -105,6 +124,7 @@ const Figure = ({
   actionable,
   side,
   cancelMove,
+  life,
 }: FigureProps) => {
   const xPixel = x * CELL_SIZE;
   const yPixel = y * CELL_SIZE;
@@ -130,6 +150,13 @@ const Figure = ({
     setLogo(thisLogo[counter % thisLogo.length]);
   }, 500);
 
+  const [maxLife, setMaxLife] = useState(0);
+  useEffect(() => {
+    setMaxLife(life);
+  }, []);
+
+  const percent = Math.floor((life / maxLife) * 100);
+
   return (
     <StyledFigure
       top={yPixel}
@@ -137,6 +164,9 @@ const Figure = ({
       isSelected={isSelected}
       isAlly={side === 'ally'}
     >
+      <LifeBar percent={percent}>
+        <div className="inner"></div>
+      </LifeBar>
       <img
         id={`figure-${id}`}
         src={logo}

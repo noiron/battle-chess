@@ -9,6 +9,7 @@ import { delay } from '../../utils';
 import Cell from './cell';
 import Figure from './figure';
 import {
+  calculateInjury,
   checkInAttackRange,
   chooseMovePosition,
   getMovementRange,
@@ -57,6 +58,10 @@ export type FigureType = {
   side: Side;
   name: string;
   life: number;
+  /** 武力 */
+  power: number;
+  /** 智力 */
+  intelligence: number;
 };
 
 export type ClickEntity =
@@ -215,7 +220,7 @@ const Board = () => {
   };
 
   const attack = async (source: FigureType, target: FigureType) => {
-    const injure = 50;
+    const injure = calculateInjury(source, target);
     message.info(
       `${source.name} 攻击了 ${target.name}，造成了 ${injure} 点伤害`
     );
