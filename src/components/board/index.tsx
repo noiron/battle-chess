@@ -107,17 +107,19 @@ const Board = () => {
   const [
     figureState,
     setFigureNormal,
-    setFigureMove,
-    setFigureAction,
-    setFigureAttack,
+    setFigureWaitMove,
+    setFigureWaitAction,
+    setFigureWaitAttack,
     setFigureShowMenu,
+    setFigureHideMenu,
   ] = useBattleStore((state) => [
     state.figureState,
     state.setFigureNormal,
-    state.setFigureMove,
-    state.setFigureAction,
-    state.setFigureAttack,
+    state.setFigureWaitMove,
+    state.setFigureWaitAction,
+    state.setFigureWaitAttack,
     state.setFigureShowMenu,
+    state.setFigureHideMenu,
   ]);
 
   const [isGameOver, setIsGameOver] = useState(false);
@@ -140,13 +142,15 @@ const Board = () => {
   }, [figureState.selectedFigure]);
 
   const moveFigure = (id: number, newPos: Pos, isAuto = false) => {
+    const oldFigure = allFiguresRef.current.find((f) => f.id === id);
+    if (!oldFigure) return;
     const newFigure = updateFigure(id, {
       x: newPos.x,
       y: newPos.y,
-    });
+    }) as FigureType;
 
     // 移动之后进入操作选择状态
-    setFigureAction(newFigure, false);
+    setFigureWaitAction(newFigure, false, { x: oldFigure.x, y: oldFigure.y });
 
     // 这里延迟是为了在棋子移动到位后再显示菜单
     setTimeout(() => {
@@ -158,7 +162,7 @@ const Board = () => {
 
   /** 点击操作菜单的攻击选项 */
   const attackAction = () => {
-    setFigureAttack();
+    setFigureWaitAttack();
   };
 
   /** 点击操作菜单的待机选项 */
@@ -181,7 +185,7 @@ const Board = () => {
 
     for (let i = 0; i < enemyFigures.length; i++) {
       const enemyFigure = enemyFigures[i];
-      setFigureMove(enemyFigure);
+      setFigureWaitMove(enemyFigure);
 
       await delay(500);
       const nextPos = chooseMovePosition(allFiguresRef.current, enemyFigure);
@@ -195,7 +199,7 @@ const Board = () => {
         );
       });
       await delay(500);
-      setFigureAttack();
+      setFigureWaitAttack();
       await delay(500);
       if (inRangeFigures.length > 0) {
         // 随机选择一个目标
@@ -297,15 +301,19 @@ const Board = () => {
     const selectedFigure = figureState.selectedFigure;
 
     // 移动选中的棋子至这个位置
-    if (selectedFigure && isAvailable && figureState.status === 'move') {
+    if (selectedFigure && isAvailable && figureState.status === 'waitMove') {
       moveFigure(selectedFigure.id, pos);
       return;
     }
     // 攻击
-    if (selectedFigure && isInAttackRange && figureState.status === 'attack') {
+    if (
+      selectedFigure &&
+      isInAttackRange &&
+      figureState.status === 'waitAttack'
+    ) {
       message.info('无效的攻击目标');
       // 重置棋子状态至操作选择状态
-      setFigureAction(null, true);
+      setFigureWaitAction(selectedFigure, true);
       return;
     }
 
@@ -327,20 +335,20 @@ const Board = () => {
         return;
       }
       // 选中当前棋子
-      setFigureMove(figure);
+      setFigureWaitMove(figure);
       return;
     }
 
     // 如果选中的棋子是当前棋子，且棋子已处于待移动状态，则进入操作选择状态
-    if (selectedFigure.id === figure.id && figureState.status === 'move') {
-      setFigureAction(null, true);
+    if (selectedFigure.id === figure.id && figureState.status === 'waitMove') {
+      setFigureWaitAction(selectedFigure, true);
       return;
     }
 
     // 点击了非选中状态的棋子
     if (
       selectedFigure.id !== figure.id &&
-      figureState.status === 'attack' &&
+      figureState.status === 'waitAttack' &&
       checkInAttackRange(selectedFigure, {
         x: figure.x,
         y: figure.y,
@@ -356,12 +364,24 @@ const Board = () => {
     // 点击了另一个我方可移动棋子
     if (
       selectedFigure.id !== figure.id &&
-      figureState.status === 'move' &&
+      figureState.status === 'waitMove' &&
       figure.side === 'ally' &&
       figure.actionable === true
     ) {
-      setFigureMove(figure);
+      setFigureWaitMove(figure);
     }
+  };
+
+  const cancelMove = () => {
+    if (!figureState.selectedFigure) return;
+    const newFigure = updateFigure(
+      figureState.selectedFigure.id,
+      figureState.oldPos as Pos
+    );
+    setFigureHideMenu();
+    setTimeout(() => {
+      setFigureWaitMove(newFigure as FigureType);
+    }, 500 + 100);
   };
 
   return (
@@ -415,6 +435,7 @@ const Board = () => {
               waitForNextTurn={waitForNextTurn}
               showMenu={isSelected && figureState.showMenu}
               onClick={() => clickFigure(figure)}
+              cancelMove={cancelMove}
             />
           );
         })}

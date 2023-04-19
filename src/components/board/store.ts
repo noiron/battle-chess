@@ -1,20 +1,24 @@
 import { create } from 'zustand';
 import { figures } from './data';
 import { FigureType } from '.';
+import { Pos } from '../../types';
 
 // 棋子分为以下的几种状态：
 // 1. 未选中状态 [normal]
-// 2. 选中状态，展示可移动的位置 [move]
-// 3. 执行了移动操作，展示可选择操作菜单 [action]
-// 4.1 选择了攻击操作，展示可攻击的位置 [attack]
-// 5.1 取消了攻击，则回到状态2
-// 5.2 执行了攻击，则回到状态1
-type FigureStatus = 'normal' | 'move' | 'action' | 'attack';
+// 2. 选中状态，展示可移动的位置 [waitMove]
+// 3. 执行了移动操作，展示可选择操作菜单 [waitAction]
+//  -- 4.1 选择了攻击操作，展示可攻击的位置 [waitAttack]
+//  -- -- 5.1 取消了攻击，则回到状态2
+//  -- -- 5.2 执行了攻击，则回到状态1
+//  -- 4.2 选择了待机，则回到状态1
+//  -- 4.3 选择了取消，则回到状态2，并回到原来的位置
+export type FigureStatus = 'normal' | 'waitMove' | 'waitAction' | 'waitAttack';
 
 interface FigureState {
   status: FigureStatus;
   showMenu: boolean;
   selectedFigure: FigureType | null;
+  oldPos?: Pos;
 }
 
 interface BearState {
@@ -31,11 +35,16 @@ interface BearState {
   figureState: FigureState;
   setFigureNormal: () => void;
   /** 选中棋子 */
-  setFigureMove: (figure: FigureType) => void;
+  setFigureWaitMove: (figure: FigureType) => void;
   /** 移动后，展示操作菜单；如果位置未改变，则保持选中的棋子信息 */
-  setFigureAction: (figure: FigureType | null, showMenu: boolean) => void;
+  setFigureWaitAction: (
+    figure: FigureType,
+    showMenu: boolean,
+    oldPos?: Pos
+  ) => void;
   setFigureShowMenu: () => void;
-  setFigureAttack: () => void;
+  setFigureHideMenu: () => void;
+  setFigureWaitAttack: () => void;
 }
 
 export const useBattleStore = create<BearState>((set, get) => ({
@@ -87,21 +96,23 @@ export const useBattleStore = create<BearState>((set, get) => ({
       },
     });
   },
-  setFigureMove: (figure) => {
+  setFigureWaitMove: (figure) => {
     set({
       figureState: {
-        status: 'move',
+        status: 'waitMove',
         selectedFigure: figure,
         showMenu: false,
+        oldPos: undefined,
       },
     });
   },
-  setFigureAction: (figure, showMenu) => {
+  setFigureWaitAction: (figure, showMenu, oldPos) => {
     set({
       figureState: {
-        status: 'action',
-        selectedFigure: figure || get().figureState.selectedFigure,
+        status: 'waitAction',
+        selectedFigure: figure,
         showMenu,
+        oldPos: oldPos || get().figureState.oldPos,
       },
     });
   },
@@ -113,11 +124,19 @@ export const useBattleStore = create<BearState>((set, get) => ({
       },
     });
   },
-  setFigureAttack: () => {
+  setFigureHideMenu: () => {
     set({
       figureState: {
-        status: 'attack',
-        selectedFigure: get().figureState.selectedFigure,
+        ...get().figureState,
+        showMenu: false,
+      },
+    });
+  },
+  setFigureWaitAttack: () => {
+    set({
+      figureState: {
+        ...get().figureState,
+        status: 'waitAttack',
         showMenu: false,
       },
     });

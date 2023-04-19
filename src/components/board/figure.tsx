@@ -79,6 +79,7 @@ interface FigureProps {
   showMenu: boolean;
   actionable: boolean;
   side: 'ally' | 'enemy';
+  cancelMove: () => void;
 }
 
 const logos: {
@@ -103,6 +104,7 @@ const Figure = ({
   showMenu,
   actionable,
   side,
+  cancelMove,
 }: FigureProps) => {
   const xPixel = x * CELL_SIZE;
   const yPixel = y * CELL_SIZE;
@@ -157,6 +159,13 @@ const Figure = ({
             }}
           >
             待机
+          </p>
+          <p
+            onClick={() => {
+              cancelMove();
+            }}
+          >
+            取消
           </p>
         </StyledMenu>
       )}

@@ -6,13 +6,12 @@ import treeImg from 'assets/tree.svg';
 import waterImg from 'assets/water.svg';
 import cursorImg from 'assets/cursor.png';
 import swordImg from 'assets/sword.png';
+import { FigureStatus } from './store';
 
 const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
   width: ${CELL_SIZE}px;
   height: ${CELL_SIZE}px;
   box-sizing: border-box;
-  /* border: 1px solid #ccc; */
-  /* background: ${(props) => (props.isSelected ? '#FFA500' : '#eaeaea')}; */
   position: relative;
 
   .indicator {
@@ -62,7 +61,7 @@ interface CellProps {
   /** 是否在攻击范围内 */
   isInAttackRange: boolean;
   /** 需要知道棋子所在的状态，以此决定是否展示移动图标或攻击图标 */
-  figureStatus: string;
+  figureStatus: FigureStatus;
 }
 
 const bgMap: {
@@ -85,10 +84,10 @@ const Cell = (props: CellProps) => {
       isSelected={props.isSelected}
       bg={bgMap[props.terrain] || ''}
     >
-      {props.isAvailable && figureStatus === 'move' && (
+      {props.isAvailable && figureStatus === 'waitMove' && (
         <span className="indicator move"></span>
       )}
-      {props.isInAttackRange && figureStatus === 'attack' && (
+      {props.isInAttackRange && figureStatus === 'waitAttack' && (
         <span className="indicator attack"></span>
       )}
     </StyledCell>
