@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import { Pos } from 'src/types';
 import { FigureType } from '.';
 
@@ -53,4 +54,41 @@ export function checkInAttackRange(figure: FigureType, { x, y }: Pos) {
     default:
       return Math.abs(x - figure.x) <= 1 && Math.abs(y - figure.y) <= 1;
   }
+}
+
+export function chooseMovePosition(
+  allFigures: FigureType[],
+  enemyFigure: FigureType
+) {
+  const availablePos = getMovementRange(enemyFigure).filter((pos) => {
+    // 不能移动到已有棋子的位置
+    const figure = getFigureByPos(allFigures, pos);
+    return !figure;
+  });
+
+  // 没有可选位置时，返回原位置
+  if (availablePos.length === 0) {
+    return {x: enemyFigure.x, y: enemyFigure.y };
+  }
+
+  const opponents = allFigures.filter((f) => f.side !== enemyFigure.side);
+  const opponentsCenterPos = calculateCenterPos(opponents);
+
+  // 优先移动到对手中心位置
+  availablePos.sort((a, b) => {
+    const aDist = Math.abs(a.x - opponentsCenterPos.x) + Math.abs(a.y - opponentsCenterPos.y);
+    const bDist = Math.abs(b.x - opponentsCenterPos.x) + Math.abs(b.y - opponentsCenterPos.y);
+    return aDist - bDist;
+  });
+  return availablePos[0];
+}
+
+function getFigureByPos(allFigures: FigureType[], pos: Pos) {
+  return allFigures.find((f) => f.x === pos.x && f.y === pos.y);
+}
+
+function calculateCenterPos(figures: FigureType[]) {
+  const x = lodash.meanBy(figures, (f) => f.x);
+  const y = lodash.meanBy(figures, (f) => f.y);
+  return { x, y };
 }

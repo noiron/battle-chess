@@ -77,7 +77,7 @@ export const figures: FigureType[] = [
   },
   {
     id: 2,
-    x: 9,
+    x: 6,
     y: 6,
     type: 'cavalry',
     actionable: true,
@@ -87,7 +87,7 @@ export const figures: FigureType[] = [
   },
   {
     id: 3,
-    x: 9,
+    x: 6,
     y: 5,
     type: 'infantry',
     actionable: true,

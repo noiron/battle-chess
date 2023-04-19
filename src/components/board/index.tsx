@@ -8,7 +8,11 @@ import { TERRAIN_TYPE, TROOP_TYPE } from '@constants';
 import { delay } from '../../utils';
 import Cell from './cell';
 import Figure from './figure';
-import { checkInAttackRange, getMovementRange } from './logic';
+import {
+  checkInAttackRange,
+  chooseMovePosition,
+  getMovementRange,
+} from './logic';
 import BottomInfo from './bottom-info';
 import { useBattleStore } from './store';
 import { terrain } from './data';
@@ -144,6 +148,8 @@ const Board = () => {
     setTimeout(() => {
       if (!isAuto) setFigureShowMenu();
     }, 500);
+
+    return newFigure;
   };
 
   /** 点击操作菜单的攻击选项 */
@@ -172,22 +178,23 @@ const Board = () => {
       const enemyFigure = enemyFigures[i];
       setFigureMove(enemyFigure);
 
-      await delay(1000);
-      // TODO: 暂时保持原地
-      moveFigure(enemyFigure.id, { x: enemyFigure.x, y: enemyFigure.y }, true);
+      await delay(500);
+      const nextPos = chooseMovePosition(allFiguresRef.current, enemyFigure);
+      const updatedEnemy = moveFigure(enemyFigure.id, nextPos, true);
 
       // 检查是否有我方棋子在攻击范围内，如果有，则攻击
       const inRangeFigures = allFiguresRef.current.filter((f) => {
         return (
           f.side === 'ally' &&
-          checkInAttackRange(enemyFigure, { x: f.x, y: f.y })
+          checkInAttackRange(updatedEnemy || enemyFigure, { x: f.x, y: f.y })
         );
       });
+      await delay(500);
       setFigureAttack();
-
-      await delay(1000);
+      await delay(500);
       if (inRangeFigures.length > 0) {
-        attack(enemyFigure, inRangeFigures[0]);
+        // 随机选择一个目标
+        attack(enemyFigure, inRangeFigures[lodash.random(0, inRangeFigures.length - 1)]);
         setFigureNormal();
       }
     }
