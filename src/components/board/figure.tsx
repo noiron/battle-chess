@@ -81,6 +81,7 @@ interface FigureProps {
   side: 'ally' | 'enemy';
   cancelMove: () => void;
   life: number;
+  viewAction: () => void;
 }
 
 const logos: {
@@ -125,6 +126,7 @@ const Figure = ({
   side,
   cancelMove,
   life,
+  viewAction,
 }: FigureProps) => {
   const xPixel = x * CELL_SIZE;
   const yPixel = y * CELL_SIZE;
@@ -192,7 +194,7 @@ const Figure = ({
           </p>
           <p
             onClick={() => {
-              console.log('查看');
+              viewAction();
             }}
           >
             查看

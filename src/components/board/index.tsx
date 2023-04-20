@@ -17,6 +17,7 @@ import {
 import BottomInfo from './bottom-info';
 import { useBattleStore } from './store';
 import { terrain } from './data';
+import InfoView from './info-view';
 
 const ROWS = 10;
 const COLS = 16;
@@ -137,6 +138,12 @@ const Board = () => {
     state.addADay,
   ]);
 
+  const [infoView, showInfoView, hideInfoView] = useBattleStore((state) => [
+    state.infoView,
+    state.showInfoView,
+    state.hideInfoView,
+  ]);
+
   const [availablePos, setAvailablePos] = useState<Pos[]>([]);
   useEffect(() => {
     if (figureState.selectedFigure) {
@@ -178,6 +185,12 @@ const Board = () => {
       actionable: false,
     });
     setFigureNormal();
+  };
+
+  /** 点击操作菜单的查看选项 */
+  const viewAction = () => {
+    if (!figureState.selectedFigure) return;
+    showInfoView(figureState.selectedFigure);
   };
 
   /**
@@ -440,6 +453,7 @@ const Board = () => {
               waitForNextTurn={waitForNextTurn}
               showMenu={isSelected && figureState.showMenu}
               onClick={() => clickFigure(figure)}
+              viewAction={viewAction}
               cancelMove={cancelMove}
             />
           );
@@ -456,6 +470,12 @@ const Board = () => {
           结束战斗
         </Button>
       </div>
+
+      {infoView.show && infoView.entity && (
+        <Modal title="武将信息" onCancel={() => hideInfoView()} open={true}>
+          <InfoView entity={infoView.entity} />
+        </Modal>
+      )}
     </StyledBoard>
   );
 };

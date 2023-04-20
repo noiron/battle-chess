@@ -45,6 +45,14 @@ interface BearState {
   setFigureShowMenu: () => void;
   setFigureHideMenu: () => void;
   setFigureWaitAttack: () => void;
+
+  /** 展示信息 */
+  infoView: {
+    show: boolean;
+    entity: FigureType | null;
+  },
+  showInfoView: (entity: FigureType) => void;
+  hideInfoView: () => void;
 }
 
 export const useBattleStore = create<BearState>((set, get) => ({
@@ -141,4 +149,25 @@ export const useBattleStore = create<BearState>((set, get) => ({
       },
     }));
   },
+
+  infoView: {
+    show: false,
+    entity: null,
+  },
+  showInfoView: (entity) => {
+    set({
+      infoView: {
+        show: true,
+        entity,
+      },
+    });
+  },
+  hideInfoView: () => {
+    set({
+      infoView: {
+        show: false,
+        entity: null,
+      },
+    });
+  }
 }));
