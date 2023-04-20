@@ -117,28 +117,28 @@ export const useBattleStore = create<BearState>((set, get) => ({
     });
   },
   setFigureShowMenu: () => {
-    set({
+    set((state) => ({
       figureState: {
-        ...get().figureState,
+        ...state.figureState,
         showMenu: true,
       },
-    });
+    }));
   },
   setFigureHideMenu: () => {
-    set({
+    set((state) => ({
       figureState: {
-        ...get().figureState,
+        ...state.figureState,
         showMenu: false,
       },
-    });
+    }));
   },
   setFigureWaitAttack: () => {
-    set({
+    set((state) => ({
       figureState: {
-        ...get().figureState,
+        ...state.figureState,
         status: 'waitAttack',
         showMenu: false,
       },
-    });
+    }));
   },
 }));

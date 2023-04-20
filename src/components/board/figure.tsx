@@ -93,7 +93,7 @@ const logos: {
   infantry: [infantryIcon1, infantryIcon2],
 };
 
-const LifeBar = styled.div<{ percent: number }>`
+const LifeBar = styled.div<{ percent: number; isAlly: boolean }>`
   position: absolute;
   top: 0;
   left: 10%;
@@ -107,7 +107,7 @@ const LifeBar = styled.div<{ percent: number }>`
     top: 0;
     left: 0;
     height: 100%;
-    background: #f00;
+    background: ${(props) => (props.isAlly ? '#0f0' : '#f00')};
   }
 `;
 
@@ -164,7 +164,7 @@ const Figure = ({
       isSelected={isSelected}
       isAlly={side === 'ally'}
     >
-      <LifeBar percent={percent}>
+      <LifeBar percent={percent} isAlly={side === 'ally'}>
         <div className="inner"></div>
       </LifeBar>
       <img
@@ -189,6 +189,13 @@ const Figure = ({
             }}
           >
             待机
+          </p>
+          <p
+            onClick={() => {
+              console.log('查看');
+            }}
+          >
+            查看
           </p>
           <p
             onClick={() => {
