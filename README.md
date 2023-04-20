@@ -2,8 +2,11 @@
 
 使用 JavaScript 开发的三国背景战棋类策略游戏。
 
+在线地址：https://battle-chess.vercel.app
+
 （开发中……）
 
+![当前战斗界面](screenshots/battle.png)
 
 ## TODO
 
