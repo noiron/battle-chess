@@ -103,9 +103,10 @@ function calculateCenterPos(figures: FigureType[]) {
 
 export function calculateInjury(source: FigureType, target: FigureType) {
   // 可以简单地假设：攻击力 = 武力，防御力 = 智力
-  // 但是智力属性低的武将的防御力会过低，所以这里暂时使用两者之和
-  const attack = source.power + source.intelligence;
-  const defense = source.power + target.intelligence;
+  // <del>或者考虑智力属性低的武将的防御力会过低，可以使用两者之和</del>
+  const attack = source.power;
+  const defense = target.intelligence;
 
-  return Math.floor((attack / defense) * source.life * 0.3) + 1;
+  const injury = Math.floor((attack / defense) * source.life * 0.2) + 1;
+  return Math.min(injury, target.life);
 }
