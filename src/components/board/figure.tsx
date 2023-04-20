@@ -15,12 +15,16 @@ const StyledMenu = styled.div`
   position: absolute;
   top: 10px;
   right: -40px;
-  border: 1px solid #000;
+  border: 1px solid #333;
   background: #fff;
+  box-shadow: 2px 2px 1px #999;
+  font-size: 14px;
+  border-radius: 2px;
 
   p {
     margin: 0px;
-    padding: 5px;
+    padding: 0px 6px;
+    line-height: 2;
     cursor: pointer;
 
     &:hover {
@@ -50,7 +54,7 @@ const StyledFigure = styled.div<{
     background: rgba(255, 255, 255, 0.7);
   }
 
-  ${(props) =>
+  /* ${(props) =>
     props.isAlly &&
     css`
       &::after {
@@ -64,7 +68,7 @@ const StyledFigure = styled.div<{
         border-right: 6px solid transparent;
         border-bottom: 3px solid #666;
       }
-    `}
+    `} */
 `;
 
 interface FigureProps {
@@ -101,6 +105,7 @@ const LifeBar = styled.div<{ percent: number; isAlly: boolean }>`
   width: 70%;
   height: 1px;
   border: 1px solid #000;
+  border-radius: 2px;
 
   .inner {
     width: ${(props) => props.percent}%;

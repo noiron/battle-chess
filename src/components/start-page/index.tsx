@@ -5,10 +5,10 @@ import { useState } from 'react';
 import game from '../../games/game';
 
 const StyledBox = styled.div`
-  width: 600px;
-  height: 600px;
+  width: 500px;
+  height: 500px;
   border: 1px solid #000;
-  border-radius: 10px;
+  border-radius: 4px;
   text-align: center;
   background: #fff;
 

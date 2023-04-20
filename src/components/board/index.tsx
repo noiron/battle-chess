@@ -25,9 +25,13 @@ const COLS = 16;
 const StyledBoard = styled.div`
   padding: 10px;
   background: #fff;
-  border-radius: 10px;
+  border-radius: 4px;
   position: relative;
   padding-bottom: 60px;
+
+  * {
+    font-family: STKaiti;
+  }
 
   .inner {
     position: relative;
