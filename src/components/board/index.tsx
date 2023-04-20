@@ -89,17 +89,8 @@ const getTerrain = ({ x, y }: Pos) => {
 };
 
 const Board = () => {
-  const { allFigures, updateFigure, removeFigureById, enableAllFigures } =
-    useBattleStore((state) => {
-      const { allFigures, updateFigure, removeFigureById, enableAllFigures } =
-        state;
-      return {
-        allFigures,
-        updateFigure,
-        removeFigureById,
-        enableAllFigures,
-      };
-    });
+  const battleStore = useBattleStore();
+  const { allFigures, figureState, days, infoView } = battleStore;
 
   // 部分逻辑（如对面行动时）需要获得即时数据，使用 ref 来保存
   const allFiguresRef = useRef(allFigures);
@@ -110,39 +101,9 @@ const Board = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [
-    figureState,
-    setFigureNormal,
-    setFigureWaitMove,
-    setFigureWaitAction,
-    setFigureWaitAttack,
-    setFigureShowMenu,
-    setFigureHideMenu,
-  ] = useBattleStore((state) => [
-    state.figureState,
-    state.setFigureNormal,
-    state.setFigureWaitMove,
-    state.setFigureWaitAction,
-    state.setFigureWaitAttack,
-    state.setFigureShowMenu,
-    state.setFigureHideMenu,
-  ]);
-
   const [isGameOver, setIsGameOver] = useState(false);
   const [whoseTurn, setWhoseTurn] = useState<Side>('ally');
-
   const [clickEntity, setClickEntity] = useState<ClickEntity | null>(null);
-
-  const [days, addADay] = useBattleStore((state) => [
-    state.days,
-    state.addADay,
-  ]);
-
-  const [infoView, showInfoView, hideInfoView] = useBattleStore((state) => [
-    state.infoView,
-    state.showInfoView,
-    state.hideInfoView,
-  ]);
 
   const [availablePos, setAvailablePos] = useState<Pos[]>([]);
   useEffect(() => {
@@ -156,17 +117,20 @@ const Board = () => {
   const moveFigure = (id: number, newPos: Pos, isAuto = false) => {
     const oldFigure = allFiguresRef.current.find((f) => f.id === id);
     if (!oldFigure) return;
-    const newFigure = updateFigure(id, {
+    const newFigure = battleStore.updateFigure(id, {
       x: newPos.x,
       y: newPos.y,
     }) as FigureType;
 
     // 移动之后进入操作选择状态
-    setFigureWaitAction(newFigure, false, { x: oldFigure.x, y: oldFigure.y });
+    battleStore.setFigureWaitAction(newFigure, false, {
+      x: oldFigure.x,
+      y: oldFigure.y,
+    });
 
     // 这里延迟是为了在棋子移动到位后再显示菜单
     setTimeout(() => {
-      if (!isAuto) setFigureShowMenu();
+      if (!isAuto) battleStore.setFigureShowMenu();
     }, 500);
 
     return newFigure;
@@ -174,23 +138,23 @@ const Board = () => {
 
   /** 点击操作菜单的攻击选项 */
   const attackAction = () => {
-    setFigureWaitAttack();
+    battleStore.setFigureWaitAttack();
   };
 
   /** 点击操作菜单的待机选项 */
   const waitForNextTurn = () => {
     if (!figureState.selectedFigure) return;
 
-    updateFigure(figureState.selectedFigure.id, {
+    battleStore.updateFigure(figureState.selectedFigure.id, {
       actionable: false,
     });
-    setFigureNormal();
+    battleStore.setFigureNormal();
   };
 
   /** 点击操作菜单的查看选项 */
   const viewAction = () => {
     if (!figureState.selectedFigure) return;
-    showInfoView(figureState.selectedFigure);
+    battleStore.showInfoView(figureState.selectedFigure);
   };
 
   /**
@@ -203,7 +167,7 @@ const Board = () => {
 
     for (let i = 0; i < enemyFigures.length; i++) {
       const enemyFigure = enemyFigures[i];
-      setFigureWaitMove(enemyFigure);
+      battleStore.setFigureWaitMove(enemyFigure);
 
       await delay(500);
       const nextPos = chooseMovePosition(allFiguresRef.current, enemyFigure);
@@ -217,7 +181,7 @@ const Board = () => {
         );
       });
       await delay(500);
-      setFigureWaitAttack();
+      battleStore.setFigureWaitAttack();
       await delay(500);
       if (inRangeFigures.length > 0) {
         // 随机选择一个目标
@@ -225,7 +189,7 @@ const Board = () => {
           enemyFigure,
           inRangeFigures[lodash.random(0, inRangeFigures.length - 1)]
         );
-        setFigureNormal();
+        battleStore.setFigureNormal();
       }
     }
 
@@ -239,12 +203,12 @@ const Board = () => {
     );
     await delay(1000);
     const remainLife = target.life - injure;
-    updateFigure(target.id, { life: remainLife });
-    updateFigure(source.id, { actionable: false });
+    battleStore.updateFigure(target.id, { life: remainLife });
+    battleStore.updateFigure(source.id, { actionable: false });
 
     if (remainLife <= 0) {
       message.info(`${target.name} 被击败了`);
-      removeFigureById(target.id);
+      battleStore.removeFigureById(target.id);
     }
   };
 
@@ -289,11 +253,9 @@ const Board = () => {
   /** 结束当前回合 */
   const endThisTurn = async () => {
     await enemyAction();
-    enableAllFigures();
-    addADay();
-
-    // 状态重置
-    setFigureNormal();
+    battleStore.enableAllFigures();
+    battleStore.addADay();
+    battleStore.setFigureNormal();
   };
 
   const endBattle = async () => {
@@ -331,7 +293,7 @@ const Board = () => {
     ) {
       message.info('无效的攻击目标');
       // 重置棋子状态至操作选择状态
-      setFigureWaitAction(selectedFigure, true);
+      battleStore.setFigureWaitAction(selectedFigure, true);
       return;
     }
 
@@ -353,13 +315,13 @@ const Board = () => {
         return;
       }
       // 选中当前棋子
-      setFigureWaitMove(figure);
+      battleStore.setFigureWaitMove(figure);
       return;
     }
 
     // 如果选中的棋子是当前棋子，且棋子已处于待移动状态，则进入操作选择状态
     if (selectedFigure.id === figure.id && figureState.status === 'waitMove') {
-      setFigureWaitAction(selectedFigure, true);
+      battleStore.setFigureWaitAction(selectedFigure, true);
       return;
     }
 
@@ -375,7 +337,7 @@ const Board = () => {
     ) {
       attack(selectedFigure, figure);
       // 重置选中棋子状态
-      setFigureNormal();
+      battleStore.setFigureNormal();
       return;
     }
 
@@ -386,19 +348,19 @@ const Board = () => {
       figure.side === 'ally' &&
       figure.actionable === true
     ) {
-      setFigureWaitMove(figure);
+      battleStore.setFigureWaitMove(figure);
     }
   };
 
   const cancelMove = () => {
     if (!figureState.selectedFigure) return;
-    const newFigure = updateFigure(
+    const newFigure = battleStore.updateFigure(
       figureState.selectedFigure.id,
       figureState.oldPos as Pos
     );
-    setFigureHideMenu();
+    battleStore.setFigureHideMenu();
     setTimeout(() => {
-      setFigureWaitMove(newFigure as FigureType);
+      battleStore.setFigureWaitMove(newFigure as FigureType);
     }, 500 + 100);
   };
 
@@ -472,7 +434,11 @@ const Board = () => {
       </div>
 
       {infoView.show && infoView.entity && (
-        <Modal title="武将信息" onCancel={() => hideInfoView()} open={true}>
+        <Modal
+          title="武将信息"
+          onCancel={() => battleStore.hideInfoView()}
+          open={true}
+        >
           <InfoView entity={infoView.entity} />
         </Modal>
       )}
