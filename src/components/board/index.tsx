@@ -18,6 +18,7 @@ import BottomInfo from './bottom-info';
 import { useBattleStore } from './store';
 import { terrain } from './data';
 import InfoView from './info-view';
+import Damage from './damage';
 
 const ROWS = 10;
 const COLS = 16;
@@ -94,7 +95,7 @@ const getTerrain = ({ x, y }: Pos) => {
 
 const Board = () => {
   const battleStore = useBattleStore();
-  const { allFigures, figureState, days, infoView } = battleStore;
+  const { allFigures, figureState, days, infoView, damage } = battleStore;
 
   // 部分逻辑（如对面行动时）需要获得即时数据，使用 ref 来保存
   const allFiguresRef = useRef(allFigures);
@@ -202,10 +203,14 @@ const Board = () => {
 
   const attack = async (source: FigureType, target: FigureType) => {
     const injure = calculateInjury(source, target);
-    message.info(
+    console.log(
       `${source.name} 攻击了 ${target.name}，造成了 ${injure} 点伤害`
     );
+    battleStore.setDamage(injure, { x: target.x, y: target.y });
+    
     await delay(1000);
+    
+    battleStore.setDamage(0, null);
     const remainLife = target.life - injure;
     battleStore.updateFigure(target.id, { life: remainLife });
     battleStore.updateFigure(source.id, { actionable: false });
@@ -405,6 +410,10 @@ const Board = () => {
             </StyledRow>
           );
         })}
+
+        {!!damage.num && damage.pos && (
+          <Damage damage={damage.num} pos={damage.pos} />
+        )}
 
         {allFigures.map((figure) => {
           const selectedFigure = figureState.selectedFigure;

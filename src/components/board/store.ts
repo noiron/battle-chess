@@ -53,6 +53,13 @@ interface BearState {
   },
   showInfoView: (entity: FigureType) => void;
   hideInfoView: () => void;
+
+  /** 战斗中受到的伤害数值，界面上最多只会展示一个 */
+  damage: {
+    num: number;
+    pos: Pos | null;
+  },
+  setDamage: (num: number, pos: Pos | null) => void;
 }
 
 export const useBattleStore = create<BearState>((set, get) => ({
@@ -167,6 +174,18 @@ export const useBattleStore = create<BearState>((set, get) => ({
       infoView: {
         show: false,
         entity: null,
+      },
+    });
+  },
+  damage: {
+    num: 0,
+    pos: null,
+  },
+  setDamage: (num, pos) => {
+    set({
+      damage: {
+        num,
+        pos,
       },
     });
   }
