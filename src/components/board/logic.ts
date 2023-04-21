@@ -1,6 +1,14 @@
 import lodash from 'lodash';
 import { Pos } from 'src/types';
-import { FigureType } from '.';
+import { FigureType, getTerrain } from '.';
+import {
+  GRASS,
+  MOUNTAIN,
+  TREE,
+  TROOP_TYPE,
+  WATER,
+  TERRAIN_TYPE,
+} from '@constants';
 
 /**
  * 根据棋子信息获取可移动范围
@@ -105,8 +113,57 @@ export function calculateInjury(source: FigureType, target: FigureType) {
   // 可以简单地假设：攻击力 = 武力，防御力 = 智力
   // <del>或者考虑智力属性低的武将的防御力会过低，可以使用两者之和</del>
   const attack = source.power;
-  const defense = target.intelligence;
-
+  const defense = calculateDefense(target);
   const injury = Math.floor((attack / defense) * source.life * 0.2) + 1;
   return Math.min(injury, target.life);
+}
+
+export function calculateDefense(figure: FigureType) {
+  const terrain = getTerrain(figure);
+  const defenseRatio = getDefenseRatio(figure.type, terrain);
+  return figure.intelligence * defenseRatio;
+}
+
+type TerrainEffect = {
+  [type in TROOP_TYPE]: {
+    0: number;
+    [MOUNTAIN]: number;
+    [GRASS]: number;
+    [TREE]: number;
+    [WATER]: number;
+  };
+};
+
+const terrainDefense: TerrainEffect = {
+  // 步兵在森林和山地地形增加防御力
+  infantry: {
+    0: 1,
+    [MOUNTAIN]: 1.2,
+    [GRASS]: 1,
+    [TREE]: 1.2,
+    [WATER]: 0.5,
+  },
+  // 弓兵在森林和山地地形增加防御力
+  archer: {
+    0: 1,
+    [MOUNTAIN]: 1.2,
+    [GRASS]: 1,
+    [TREE]: 1.2,
+    [WATER]: 0.5,
+  },
+  // 骑兵在森林和山地的防御力下降
+  cavalry: {
+    0: 1,
+    [MOUNTAIN]: 0.8,
+    [GRASS]: 1,
+    [TREE]: 0.8,
+    [WATER]: 0.5,
+  },
+};
+
+/**
+ * 根据地形和兵种决定防御加成
+ */
+export function getDefenseRatio(troopType: TROOP_TYPE, terrain: TERRAIN_TYPE) {
+  return terrainDefense[troopType][terrain];
 }

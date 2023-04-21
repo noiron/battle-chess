@@ -1,5 +1,6 @@
 import { TERRAIN_TEXT } from '@constants';
-import { ClickEntity } from '.';
+import { ClickEntity, getTerrain } from '.';
+import { calculateDefense } from './logic';
 
 interface InfoViewProps {
   entity: ClickEntity;
@@ -10,8 +11,11 @@ const InfoView = (props: InfoViewProps) => {
 
   if (entity.entityType === 'terrain') {
     return <p>{TERRAIN_TEXT[entity.terrain]}</p>;
-    // todo: 地形的加成信息
+    // todo: 展示地形的加成信息
   }
+
+  const terrain = getTerrain(entity);
+  const defense = calculateDefense(entity);
 
   return (
     <>
@@ -19,6 +23,8 @@ const InfoView = (props: InfoViewProps) => {
       <p>武力：{entity.power}</p>
       <p>智力：{entity.intelligence}</p>
       <p>生命值：{entity.life}</p>
+      <p>防御力：{defense}</p>
+      <p>地形：{TERRAIN_TEXT[terrain]}</p>
     </>
   );
 };

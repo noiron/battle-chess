@@ -84,7 +84,7 @@ const StyledRow = styled.div`
   display: flex;
 `;
 
-const getTerrain = ({ x, y }: Pos) => {
+export const getTerrain = ({ x, y }: Pos) => {
   // 以下两行仅做测试
   // x = x % terrain[0].length;
   // y = y % terrain.length;
