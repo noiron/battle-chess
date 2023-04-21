@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { figures } from './data';
-import { FigureType } from '.';
+import { ClickEntity, FigureType } from '.';
 import { Pos } from '../../types';
 
 // 棋子分为以下的几种状态：
@@ -49,9 +49,9 @@ interface BearState {
   /** 展示信息 */
   infoView: {
     show: boolean;
-    entity: FigureType | null;
+    entity: ClickEntity | null;
   },
-  showInfoView: (entity: FigureType) => void;
+  showInfoView: (entity: ClickEntity) => void;
   hideInfoView: () => void;
 
   /** 战斗中受到的伤害数值，界面上最多只会展示一个 */

@@ -159,7 +159,10 @@ const Board = () => {
   /** 点击操作菜单的查看选项 */
   const viewAction = () => {
     if (!figureState.selectedFigure) return;
-    battleStore.showInfoView(figureState.selectedFigure);
+    battleStore.showInfoView({
+      entityType: 'figure',
+      ...figureState.selectedFigure,
+    });
   };
 
   /**
@@ -207,9 +210,9 @@ const Board = () => {
       `${source.name} 攻击了 ${target.name}，造成了 ${injure} 点伤害`
     );
     battleStore.setDamage(injure, { x: target.x, y: target.y });
-    
+
     await delay(1000);
-    
+
     battleStore.setDamage(0, null);
     const remainLife = target.life - injure;
     battleStore.updateFigure(target.id, { life: remainLife });
@@ -437,7 +440,13 @@ const Board = () => {
 
       <div className="info">
         <span>第 {days} 天</span>
-        <BottomInfo clickEntity={clickEntity} />
+        <BottomInfo
+          clickEntity={clickEntity}
+          showInfoView={() => {
+            if (!clickEntity) return null;
+            battleStore.showInfoView(clickEntity);
+          }}
+        />
         <Button onClick={endThisTurn} disabled={whoseTurn === 'enemy'}>
           结束回合
         </Button>
@@ -448,7 +457,7 @@ const Board = () => {
 
       {infoView.show && infoView.entity && (
         <Modal
-          title="武将信息"
+          title={infoView.entity.entityType === 'figure' ? '武将信息' : '地形'}
           onCancel={() => battleStore.hideInfoView()}
           open={true}
         >

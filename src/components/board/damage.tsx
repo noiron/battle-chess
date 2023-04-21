@@ -9,13 +9,17 @@ const StyledDamage = styled.div<{
   position: absolute;
   top: ${(props) => props.top}px;
   left: ${(props) => props.left}px;
+  transform: translate(-50%, -40%);
   z-index: 110;
   background: #fff;
   color: #000;
-  font-size: 14px;
+  font-size: 24px;
   line-height: 1.2;
-  padding: 0 4px;
-  font-weight: bold;
+  padding: 2px 6px;
+  font-weight: bolder;
+  && {
+    font-family: 'Silver';
+  }
 `;
 
 interface DamageProps {
@@ -28,8 +32,8 @@ const Damage = (props: DamageProps) => {
     damage,
     pos: { x, y },
   } = props;
-  const xPixel = (x + 0.2) * CELL_SIZE;
-  const yPixel = (y + 0.2) * CELL_SIZE;
+  const xPixel = (x + 0.5) * CELL_SIZE;
+  const yPixel = (y + 0.5) * CELL_SIZE;
 
   return (
     <StyledDamage top={yPixel} left={xPixel}>
