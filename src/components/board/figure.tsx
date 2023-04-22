@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import { useEffect, useState } from 'react';
-import { CELL_SIZE } from '@constants';
+import { CELL_SIZE, TERRAIN_TYPE, WATER } from '@constants';
 import { useInterval } from '../../utils';
 import knightLogo from '../../assets/knight-black.svg';
 import kingLogo from '../../assets/king-white.svg';
@@ -12,6 +12,8 @@ import infantryIcon1 from 'assets/infantry1.png';
 import infantryIcon2 from 'assets/infantry2.png';
 import navyIcon1 from 'assets/navy1.png';
 import navyIcon2 from 'assets/navy2.png';
+import inWaterIcon1 from 'assets/in-water1.png';
+import inWaterIcon2 from 'assets/in-water2.png';
 
 const StyledMenu = styled.div`
   position: absolute;
@@ -88,6 +90,7 @@ interface FigureProps {
   cancelMove: () => void;
   life: number;
   viewAction: () => void;
+  terrain: TERRAIN_TYPE;
 }
 
 const logos: {
@@ -99,6 +102,7 @@ const logos: {
   cavalry: [cavalryIcon1, cavalryIcon2],
   infantry: [infantryIcon1, infantryIcon2],
   navy: [navyIcon1, navyIcon2],
+  inWater: [inWaterIcon1, inWaterIcon2],
 };
 
 const LifeBar = styled.div<{ percent: number; isAlly: boolean }>`
@@ -135,12 +139,16 @@ const Figure = ({
   cancelMove,
   life,
   viewAction,
+  terrain,
 }: FigureProps) => {
   const xPixel = x * CELL_SIZE;
   const yPixel = y * CELL_SIZE;
   const [counter, setCounter] = useState(0);
 
-  const thisLogo = logos[type];
+  let thisLogo = logos[type];
+  if (terrain === WATER) {
+    thisLogo = logos.inWater;
+  }
   const [logo, setLogo] = useState(
     typeof thisLogo === 'string' ? thisLogo : thisLogo[0]
   );

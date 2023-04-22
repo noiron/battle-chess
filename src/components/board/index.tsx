@@ -424,6 +424,7 @@ const Board = () => {
               onClick={() => clickFigure(figure)}
               viewAction={viewAction}
               cancelMove={cancelMove}
+              terrain={getTerrain(figure)}
             />
           );
         })}
