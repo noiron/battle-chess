@@ -9,6 +9,7 @@ import { delay } from '../../utils';
 import Cell from './cell';
 import Figure from './figure';
 import {
+  calculateCenterPos,
   calculateInjury,
   checkInAttackRange,
   chooseMovePosition,
@@ -109,6 +110,23 @@ const Board = () => {
       setAvailablePos([]);
     }
   }, [figureState.selectedFigure]);
+
+  const [directions, setDirections] = useState<{
+    [key in Side]: 'left' | 'right';
+  }>({ ally: 'right', enemy: 'left' });
+  useEffect(() => {
+    const enemies = allFigures.filter((f) => f.side === 'enemy');
+    const enemiesCenterPos = calculateCenterPos(enemies);
+
+    const allies = allFigures.filter((f) => f.side === 'ally');
+    const alliesCenterPos = calculateCenterPos(allies);
+
+    if (enemiesCenterPos.x > alliesCenterPos.x) {
+      setDirections({ ally: 'right', enemy: 'left' });
+    } else {
+      setDirections({ ally: 'left', enemy: 'right' });
+    }
+  }, []);
 
   const moveFigure = (id: number, newPos: Pos, isAuto = false) => {
     const oldFigure = allFiguresRef.current.find((f) => f.id === id);
@@ -416,7 +434,7 @@ const Board = () => {
           return (
             <Figure
               key={figure.id}
-              {...figure}
+              figure={figure}
               isSelected={isSelected}
               attackAction={attackAction}
               waitForNextTurn={waitForNextTurn}
@@ -425,6 +443,7 @@ const Board = () => {
               viewAction={viewAction}
               cancelMove={cancelMove}
               terrain={getTerrain(figure)}
+              direction={directions[figure.side]}
             />
           );
         })}

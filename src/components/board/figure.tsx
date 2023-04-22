@@ -1,5 +1,6 @@
 import styled, { css } from 'styled-components';
 import { useEffect, useState } from 'react';
+import { FigureType } from '.';
 import { CELL_SIZE, TERRAIN_TYPE, WATER } from '@constants';
 import { useInterval } from '../../utils';
 import knightLogo from '../../assets/knight-black.svg';
@@ -57,6 +58,9 @@ const StyledFigure = styled.div<{
     height: 100%;
     background: rgba(255, 255, 255, 0.7);
   }
+  img.left {
+    transform: rotateY(180deg);
+  }
 
   /* ${(props) =>
     props.isAlly &&
@@ -76,21 +80,16 @@ const StyledFigure = styled.div<{
 `;
 
 interface FigureProps {
-  id: number;
-  type: string;
-  x: number;
-  y: number;
-  onClick: () => void;
+  figure: FigureType;
   isSelected: boolean;
+  showMenu: boolean;
+  terrain: TERRAIN_TYPE;
+  direction: 'left' | 'right';
+  onClick: () => void;
   attackAction: () => void;
   waitForNextTurn: () => void;
-  showMenu: boolean;
-  actionable: boolean;
-  side: 'ally' | 'enemy';
   cancelMove: () => void;
-  life: number;
   viewAction: () => void;
-  terrain: TERRAIN_TYPE;
 }
 
 const logos: {
@@ -125,22 +124,18 @@ const LifeBar = styled.div<{ percent: number; isAlly: boolean }>`
 `;
 
 const Figure = ({
-  x,
-  y,
-  type,
-  id,
+  figure,
   onClick,
   isSelected,
   attackAction,
   waitForNextTurn,
   showMenu,
-  actionable,
-  side,
   cancelMove,
-  life,
   viewAction,
   terrain,
+  direction,
 }: FigureProps) => {
+  const { x, y, type, side, life, id, actionable } = figure;
   const xPixel = x * CELL_SIZE;
   const yPixel = y * CELL_SIZE;
   const [counter, setCounter] = useState(0);
@@ -191,6 +186,7 @@ const Figure = ({
         onClick={() => {
           onClick();
         }}
+        className={direction}
       />
       {showMenu && (
         <StyledMenu>

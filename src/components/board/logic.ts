@@ -106,7 +106,7 @@ function getFigureByPos(allFigures: FigureType[], pos: Pos) {
   return allFigures.find((f) => f.x === pos.x && f.y === pos.y);
 }
 
-function calculateCenterPos(figures: FigureType[]) {
+export function calculateCenterPos(figures: FigureType[]) {
   const x = lodash.meanBy(figures, (f) => f.x);
   const y = lodash.meanBy(figures, (f) => f.y);
   return { x, y };
