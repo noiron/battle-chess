@@ -1,6 +1,6 @@
 import { TERRAIN_TEXT } from '@constants';
-import { ClickEntity, getTerrain } from '.';
-import { calculateDefense } from './logic';
+import { ClickEntity } from '.';
+import { calculateDefense, getTerrain } from './logic';
 
 interface InfoViewProps {
   entity: ClickEntity;

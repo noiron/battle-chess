@@ -25,7 +25,7 @@ export const TERRAIN_TEXT: {
 };
 
 /** 兵种类型 */
-export type TROOP_TYPE = 'infantry' | 'cavalry' | 'archer';
+export type TROOP_TYPE = 'infantry' | 'cavalry' | 'archer' | 'navy';
 
 export const TROOP_MAP: {
   [key in TROOP_TYPE]: string;
@@ -33,4 +33,5 @@ export const TROOP_MAP: {
   infantry: '步兵',
   cavalry: '骑兵',
   archer: '弓兵',
+  navy: '水军',
 };

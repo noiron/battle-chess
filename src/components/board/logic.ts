@@ -1,13 +1,7 @@
 import lodash from 'lodash';
 import { Pos } from 'src/types';
 import { FigureType } from '.';
-import {
-  GRASS,
-  MOUNTAIN,
-  TREE,
-  TROOP_TYPE,
-  WATER,
-} from '@constants';
+import { GRASS, MOUNTAIN, PLAIN, TREE, TROOP_TYPE, WATER } from '@constants';
 import { terrain } from './data';
 
 export const getTerrain = ({ x, y }: Pos) => {
@@ -153,27 +147,34 @@ type TerrainEffect = {
 const terrainDefense: TerrainEffect = {
   // 步兵在森林和山地地形增加防御力
   infantry: {
-    0: 1,
+    [PLAIN]: 1,
     [MOUNTAIN]: 1.2,
     [GRASS]: 1,
     [TREE]: 1.2,
-    [WATER]: 0.5,
+    [WATER]: 0.7,
   },
   // 弓兵在森林和山地地形增加防御力
   archer: {
-    0: 1,
+    [PLAIN]: 1,
     [MOUNTAIN]: 1.2,
     [GRASS]: 1,
     [TREE]: 1.2,
-    [WATER]: 0.5,
+    [WATER]: 0.7,
   },
   // 骑兵在森林和山地的防御力下降
   cavalry: {
-    0: 1,
+    [PLAIN]: 1,
     [MOUNTAIN]: 0.8,
     [GRASS]: 1,
     [TREE]: 0.8,
-    [WATER]: 0.5,
+    [WATER]: 0.7,
+  },
+  navy: {
+    [PLAIN]: 1,
+    [MOUNTAIN]: 1,
+    [GRASS]: 1,
+    [TREE]: 1,
+    [WATER]: 1,
   },
 };
 
@@ -182,6 +183,7 @@ const attackRatios = {
   cavalry: 1,
   infantry: 0.8,
   archer: 0.9,
+  navy: 0.8,
 };
 
 /** 不同兵种的防御加成 */
@@ -189,4 +191,5 @@ const defenseRatios = {
   cavalry: 0.7,
   infantry: 1.2,
   archer: 1.0,
+  navy: 1.0,
 };
