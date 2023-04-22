@@ -13,10 +13,10 @@ import {
   checkInAttackRange,
   chooseMovePosition,
   getMovementRange,
+  getTerrain,
 } from './logic';
 import BottomInfo from './bottom-info';
 import { useBattleStore } from './store';
-import { terrain } from './data';
 import InfoView from './info-view';
 import Damage from './damage';
 
@@ -83,15 +83,6 @@ export type ClickEntity =
 const StyledRow = styled.div`
   display: flex;
 `;
-
-export const getTerrain = ({ x, y }: Pos) => {
-  // 以下两行仅做测试
-  // x = x % terrain[0].length;
-  // y = y % terrain.length;
-
-  const type = terrain[y][x];
-  return type || 0;
-};
 
 const Board = () => {
   const battleStore = useBattleStore();

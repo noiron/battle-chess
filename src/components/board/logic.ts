@@ -1,14 +1,23 @@
 import lodash from 'lodash';
 import { Pos } from 'src/types';
-import { FigureType, getTerrain } from '.';
+import { FigureType } from '.';
 import {
   GRASS,
   MOUNTAIN,
   TREE,
   TROOP_TYPE,
   WATER,
-  TERRAIN_TYPE,
 } from '@constants';
+import { terrain } from './data';
+
+export const getTerrain = ({ x, y }: Pos) => {
+  // 以下两行仅做测试
+  // x = x % terrain[0].length;
+  // y = y % terrain.length;
+
+  const type = terrain[y][x];
+  return type || 0;
+};
 
 /**
  * 根据棋子信息获取可移动范围
@@ -112,16 +121,23 @@ function calculateCenterPos(figures: FigureType[]) {
 export function calculateInjury(source: FigureType, target: FigureType) {
   // 可以简单地假设：攻击力 = 武力，防御力 = 智力
   // <del>或者考虑智力属性低的武将的防御力会过低，可以使用两者之和</del>
-  const attack = source.power;
+  const attack = calculateAttack(source);
   const defense = calculateDefense(target);
   const injury = Math.floor((attack / defense) * source.life * 0.2) + 1;
   return Math.min(injury, target.life);
 }
 
+export function calculateAttack(figure: FigureType) {
+  const troopRatio = attackRatios[figure.type];
+  return figure.power * troopRatio;
+}
+
 export function calculateDefense(figure: FigureType) {
   const terrain = getTerrain(figure);
-  const defenseRatio = getDefenseRatio(figure.type, terrain);
-  return figure.intelligence * defenseRatio;
+  // 根据地形和兵种决定防御加成
+  const troopRatio = defenseRatios[figure.type];
+  const terrainRatio = terrainDefense[figure.type][terrain];
+  return figure.intelligence * troopRatio * terrainRatio;
 }
 
 type TerrainEffect = {
@@ -161,9 +177,16 @@ const terrainDefense: TerrainEffect = {
   },
 };
 
-/**
- * 根据地形和兵种决定防御加成
- */
-export function getDefenseRatio(troopType: TROOP_TYPE, terrain: TERRAIN_TYPE) {
-  return terrainDefense[troopType][terrain];
-}
+/** 不同兵种的攻击加成 */
+const attackRatios = {
+  cavalry: 1,
+  infantry: 0.8,
+  archer: 0.9,
+};
+
+/** 不同兵种的防御加成 */
+const defenseRatios = {
+  cavalry: 0.7,
+  infantry: 1.2,
+  archer: 1.0,
+};

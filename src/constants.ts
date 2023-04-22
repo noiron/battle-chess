@@ -1,13 +1,14 @@
 export const CELL_SIZE = 36;
 
 // 定义不同的地形
+export const PLAIN = 0;
 export const MOUNTAIN = 1;
 export const GRASS = 2;
 export const TREE = 3;
 export const WATER = 4;
 
 export type TERRAIN_TYPE =
-  | 0
+  | typeof PLAIN
   | typeof MOUNTAIN
   | typeof GRASS
   | typeof TREE
@@ -16,7 +17,7 @@ export type TERRAIN_TYPE =
 export const TERRAIN_TEXT: {
   [key in TERRAIN_TYPE]: string;
 } = {
-  0: '',
+  [PLAIN]: '平原',
   [MOUNTAIN]: '山地',
   [GRASS]: '草地',
   [TREE]: '树林',
