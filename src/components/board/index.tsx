@@ -21,8 +21,8 @@ import { useBattleStore } from './store';
 import InfoView from './info-view';
 import Damage from './damage';
 
-const ROWS = 10;
-const COLS = 16;
+export const ROWS = 10;
+export const COLS = 16;
 
 const StyledBoard = styled.div`
   padding: 10px;

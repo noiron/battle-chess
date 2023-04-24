@@ -120,6 +120,7 @@ const LifeBar = styled.div<{ percent: number; isAlly: boolean }>`
     left: 0;
     height: 100%;
     background: ${(props) => (props.isAlly ? '#0f0' : '#f00')};
+    transition: width 0.2s;
   }
 `;
 

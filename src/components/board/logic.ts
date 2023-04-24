@@ -1,7 +1,15 @@
 import lodash from 'lodash';
 import { Pos } from 'src/types';
-import { FigureType } from '.';
-import { GRASS, MOUNTAIN, PLAIN, TREE, TROOP_TYPE, WATER } from '@constants';
+import { COLS, FigureType, ROWS } from '.';
+import {
+  GRASS,
+  MOUNTAIN,
+  PLAIN,
+  TREE,
+  TROOP_TYPE,
+  WATER,
+  TERRAIN_TYPE,
+} from '@constants';
 import { terrain } from './data';
 
 export const getTerrain = ({ x, y }: Pos) => {
@@ -18,30 +26,89 @@ export const getTerrain = ({ x, y }: Pos) => {
  */
 export function getMovementRange(figure: FigureType) {
   const { type: figureType, x, y } = figure;
-  const ranges: Pos[] = [];
-  const MAX = 2;
 
-  switch (figureType) {
-    case 'cavalry':
-      for (let i = x - MAX; i <= x + MAX; i++) {
-        for (let j = y - MAX; j <= y + MAX; j++) {
-          if (i === x && j === y) continue;
-          if (Math.abs(i - x) + Math.abs(j - y) <= MAX) {
-            ranges.push({ x: i, y: j });
-          }
-        }
-      }
-      break;
+  const movePointMap: { [type in TROOP_TYPE]: number } = {
+    cavalry: 3,
+    infantry: 2,
+    archer: 2,
+    navy: 1.5,
+  };
 
-    default:
-      for (let i = x - 1; i <= x + 1; i++) {
-        for (let j = y - 1; j <= y + 1; j++) {
-          if (i === x && j === y) continue;
-          ranges.push({ x: i, y: j });
-        }
-      }
+  return getMoveRangeDFS({ x, y }, figureType, movePointMap[figureType]);
+}
+
+function getMoveRangeDFS(
+  start: Pos,
+  troopType: TROOP_TYPE,
+  movePoint: number,
+  visitedSet: Set<string> = new Set()
+) {
+  const moveRange: Pos[] = [];
+  const { x, y } = start;
+  const posStr = `${x},${y}`;
+
+  if (visitedSet.has(posStr)) {
+    return [];
   }
-  return ranges;
+  visitedSet.add(posStr);
+
+  // 终止条件
+  if (movePoint < 0 || x < 0 || y < 0 || x >= COLS || y >= ROWS) {
+    return moveRange;
+  }
+
+  moveRange.push(start);
+
+  // 递归搜索上下左右四个方向
+  const directions = [
+    { x: 0, y: -1 },
+    { x: 0, y: 1 },
+    { x: -1, y: 0 },
+    { x: 1, y: 0 },
+  ];
+
+  for (const direction of directions) {
+    const nextX = start.x + direction.x;
+    const nextY = start.y + direction.y;
+    if (nextX < 0 || nextY < 0 || nextX >= COLS || nextY >= ROWS) {
+      continue;
+    }
+
+    const terrainType = getTerrain({ x: nextX, y: nextY });
+    const cost = getCost(terrainType, troopType);
+    const nextMovePoint = movePoint - cost;
+
+    // 递归搜索下一个位置
+    const nextMoveRange = getMoveRangeDFS(
+      { x: nextX, y: nextY },
+      troopType,
+      nextMovePoint,
+      new Set(visitedSet)
+    );
+
+    // 将搜索到的位置合并到移动范围中
+    moveRange.push(...nextMoveRange);
+  }
+  return moveRange;
+}
+
+/**
+ * 根据兵种和地形获取移动消耗
+ */
+function getCost(terrainType: TERRAIN_TYPE, troopType: TROOP_TYPE) {
+  const terrainCost = {
+    [PLAIN]: 1,
+    [MOUNTAIN]: 1.5,
+    [GRASS]: 1,
+    [TREE]: 1.2,
+    [WATER]: 2,
+  };
+  let cost = terrainCost[terrainType];
+  // 水军在水中移动消耗减少
+  if (terrainType === WATER && troopType === 'navy') {
+    cost /= 4;
+  }
+  return cost;
 }
 
 export function checkInAttackRange(figure: FigureType, { x, y }: Pos) {
@@ -117,7 +184,7 @@ export function calculateInjury(source: FigureType, target: FigureType) {
   // <del>或者考虑智力属性低的武将的防御力会过低，可以使用两者之和</del>
   const attack = calculateAttack(source);
   const defense = calculateDefense(target);
-  const injury = Math.floor((attack / defense) * source.life * 0.2) + 1;
+  const injury = Math.floor((attack / defense) * source.life * 0.3) + 1;
   return Math.min(injury, target.life);
 }
 
@@ -131,6 +198,7 @@ export function calculateDefense(figure: FigureType) {
   // 根据地形和兵种决定防御加成
   const troopRatio = defenseRatios[figure.type];
   const terrainRatio = terrainDefense[figure.type][terrain];
+  // FIXME:
   return figure.intelligence * troopRatio * terrainRatio;
 }
 

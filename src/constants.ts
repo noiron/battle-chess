@@ -1,4 +1,4 @@
-export const CELL_SIZE = 36;
+export const CELL_SIZE = 48;
 
 // 定义不同的地形
 export const PLAIN = 0;
