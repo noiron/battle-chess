@@ -20,6 +20,7 @@ import BottomInfo from './bottom-info';
 import { useBattleStore } from './store';
 import InfoView from './info-view';
 import Damage from './damage';
+import DaysBox from './days-box';
 
 export const ROWS = 10;
 export const COLS = 16;
@@ -127,6 +128,14 @@ const Board = () => {
       setDirections({ ally: 'left', enemy: 'right' });
     }
   }, []);
+
+  useEffect(() => {
+    battleStore.toggleDays(true);
+
+    setTimeout(() => {
+      battleStore.toggleDays(false);
+    }, 2000);
+  }, [days]);
 
   const moveFigure = (id: number, newPos: Pos, isAuto = false) => {
     const oldFigure = allFiguresRef.current.find((f) => f.id === id);
@@ -274,8 +283,8 @@ const Board = () => {
   /** 结束当前回合 */
   const endThisTurn = async () => {
     await enemyAction();
-    battleStore.enableAllFigures();
     battleStore.addADay();
+    battleStore.enableAllFigures();
     battleStore.setFigureNormal();
   };
 
@@ -475,6 +484,8 @@ const Board = () => {
           <InfoView entity={infoView.entity} />
         </Modal>
       )}
+
+      {battleStore.ui.showDays && <DaysBox days={days} />}
     </StyledBoard>
   );
 };

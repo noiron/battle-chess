@@ -50,7 +50,7 @@ interface BearState {
   infoView: {
     show: boolean;
     entity: ClickEntity | null;
-  },
+  };
   showInfoView: (entity: ClickEntity) => void;
   hideInfoView: () => void;
 
@@ -58,8 +58,13 @@ interface BearState {
   damage: {
     num: number;
     pos: Pos | null;
-  },
+  };
   setDamage: (num: number, pos: Pos | null) => void;
+
+  ui: {
+    showDays: boolean;
+  };
+  toggleDays: (show: boolean) => void;
 }
 
 export const useBattleStore = create<BearState>((set, get) => ({
@@ -188,5 +193,17 @@ export const useBattleStore = create<BearState>((set, get) => ({
         pos,
       },
     });
+  },
+
+  ui: {
+    showDays: false,
+  },
+  toggleDays: (show) => {
+    set((state) => ({
+      ui: {
+        ...state.ui,
+        showDays: show,
+      },
+    }));
   }
 }));
