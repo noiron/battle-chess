@@ -480,6 +480,11 @@ const Board = () => {
           title={infoView.entity.entityType === 'figure' ? '武将信息' : '地形'}
           onCancel={() => battleStore.hideInfoView()}
           open={true}
+          footer={
+            <Button onClick={battleStore.hideInfoView} type="primary">
+              确认
+            </Button>
+          }
         >
           <InfoView entity={infoView.entity} />
         </Modal>

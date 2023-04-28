@@ -212,6 +212,14 @@ type TerrainEffect = {
   };
 };
 
+export const terrainDesc: {[type in TERRAIN_TYPE]: string} = {
+  [PLAIN]: '适合各兵种作战',
+  [MOUNTAIN]: '适合步兵和弓兵作战，增加20%防御力。骑兵防御力降低20%。',
+  [GRASS]: '适合各兵种作战',
+  [TREE]: '适合步兵和弓兵作战，增加20%防御力。骑兵防御力降低20%。',
+  [WATER]: '适合水军作战，其余各兵种降低防御力。'
+}
+
 const terrainDefense: TerrainEffect = {
   // 步兵在森林和山地地形增加防御力
   infantry: {
