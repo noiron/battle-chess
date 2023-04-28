@@ -1,7 +1,7 @@
-import archerAudio from './assets/shuriken_ninja_knifes3.mp3';
-import cavalryAudio from './assets/cutting_with_a_katana1.mp3';
-import infantryAudio from './assets/Chinese_blade1.mp3';
-import navyAudio from './assets/dragon_sigh.mp3';
+import archerAudio from './assets/audios/shuriken_ninja_knifes3.mp3';
+import cavalryAudio from './assets/audios/cutting_with_a_katana1.mp3';
+import infantryAudio from './assets/audios/Chinese_blade1.mp3';
+import navyAudio from './assets/audios/dragon_sigh.mp3';
 
 /** 根据不同的兵种播放不同的音效 */
 function playAudio(type: string) {
