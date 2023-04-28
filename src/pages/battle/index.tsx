@@ -21,6 +21,7 @@ import { useBattleStore } from './store';
 import InfoView from './info-view';
 import Damage from './damage';
 import DaysBox from './days-box';
+import playAudio from '../../audio';
 
 export const ROWS = 10;
 export const COLS = 16;
@@ -224,6 +225,9 @@ const Board = () => {
 
   const attack = async (source: FigureType, target: FigureType) => {
     const injure = calculateInjury(source, target);
+    // todo: 加入设置
+    playAudio(source.type);
+
     console.log(
       `${source.name} 攻击了 ${target.name}，造成了 ${injure} 点伤害`
     );
