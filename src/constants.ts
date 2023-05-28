@@ -6,13 +6,15 @@ export const MOUNTAIN = 1;
 export const GRASS = 2;
 export const TREE = 3;
 export const WATER = 4;
+export const CITY = 5;
 
 export type TERRAIN_TYPE =
   | typeof PLAIN
   | typeof MOUNTAIN
   | typeof GRASS
   | typeof TREE
-  | typeof WATER;
+  | typeof WATER
+  | typeof CITY;
 
 export const TERRAIN_TEXT: {
   [key in TERRAIN_TYPE]: string;
@@ -22,6 +24,7 @@ export const TERRAIN_TEXT: {
   [GRASS]: '草地',
   [TREE]: '树林',
   [WATER]: '河流',
+  [CITY]: '城池',
 };
 
 /** 兵种类型 */

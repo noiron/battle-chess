@@ -9,6 +9,7 @@ import {
   TROOP_TYPE,
   WATER,
   TERRAIN_TYPE,
+  CITY,
 } from '@constants';
 import { terrain } from './data';
 
@@ -102,6 +103,7 @@ function getCost(terrainType: TERRAIN_TYPE, troopType: TROOP_TYPE) {
     [GRASS]: 1,
     [TREE]: 1.2,
     [WATER]: 2,
+    [CITY]: 1,
   };
   let cost = terrainCost[terrainType];
   // 水军在水中移动消耗减少
@@ -209,16 +211,18 @@ type TerrainEffect = {
     [GRASS]: number;
     [TREE]: number;
     [WATER]: number;
+    [CITY]: number;
   };
 };
 
-export const terrainDesc: {[type in TERRAIN_TYPE]: string} = {
+export const terrainDesc: { [type in TERRAIN_TYPE]: string } = {
   [PLAIN]: '适合各兵种作战',
   [MOUNTAIN]: '适合步兵和弓兵作战，增加20%防御力。骑兵防御力降低20%。',
   [GRASS]: '适合各兵种作战',
   [TREE]: '适合步兵和弓兵作战，增加20%防御力。骑兵防御力降低20%。',
-  [WATER]: '适合水军作战，其余各兵种降低防御力。'
-}
+  [WATER]: '适合水军作战，其余各兵种降低防御力。',
+  [CITY]: '适合各兵种作战，各兵种增加防御力。',
+};
 
 const terrainDefense: TerrainEffect = {
   // 步兵在森林和山地地形增加防御力
@@ -228,6 +232,7 @@ const terrainDefense: TerrainEffect = {
     [GRASS]: 1,
     [TREE]: 1.2,
     [WATER]: 0.7,
+    [CITY]: 1.5,
   },
   // 弓兵在森林和山地地形增加防御力
   archer: {
@@ -236,6 +241,7 @@ const terrainDefense: TerrainEffect = {
     [GRASS]: 1,
     [TREE]: 1.2,
     [WATER]: 0.7,
+    [CITY]: 1.5,
   },
   // 骑兵在森林和山地的防御力下降
   cavalry: {
@@ -244,6 +250,7 @@ const terrainDefense: TerrainEffect = {
     [GRASS]: 1,
     [TREE]: 0.8,
     [WATER]: 0.7,
+    [CITY]: 1.5,
   },
   navy: {
     [PLAIN]: 1,
@@ -251,6 +258,7 @@ const terrainDefense: TerrainEffect = {
     [GRASS]: 1,
     [TREE]: 1,
     [WATER]: 1,
+    [CITY]: 1.5,
   },
 };
 

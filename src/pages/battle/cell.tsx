@@ -1,9 +1,18 @@
 import styled from 'styled-components';
-import { CELL_SIZE, GRASS, MOUNTAIN, TERRAIN_TYPE, TREE, WATER } from '@constants';
+import {
+  CELL_SIZE,
+  CITY,
+  GRASS,
+  MOUNTAIN,
+  TERRAIN_TYPE,
+  TREE,
+  WATER,
+} from '@constants';
 import mountainImg from 'assets/mountain.svg';
 import grassImg from 'assets/grass.svg';
 import treeImg from 'assets/tree.svg';
 import waterImg from 'assets/water.svg';
+import cityImg from 'assets/city.svg';
 import cursorImg from 'assets/cursor.png';
 import swordImg from 'assets/sword.png';
 import { FigureStatus } from './store';
@@ -71,6 +80,7 @@ const bgMap: {
   [GRASS]: grassImg,
   [TREE]: treeImg,
   [WATER]: waterImg,
+  [CITY]: cityImg,
 };
 
 const Cell = (props: CellProps) => {
