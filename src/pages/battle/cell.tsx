@@ -1,21 +1,9 @@
 import styled from 'styled-components';
-import {
-  CELL_SIZE,
-  CITY,
-  GRASS,
-  MOUNTAIN,
-  TERRAIN_TYPE,
-  TREE,
-  WATER,
-} from '@constants';
-import mountainImg from 'assets/mountain.svg';
-import grassImg from 'assets/grass.svg';
-import treeImg from 'assets/tree.svg';
-import waterImg from 'assets/water.svg';
-import cityImg from 'assets/city.svg';
+import { CELL_SIZE, TERRAIN_TYPE } from '@constants';
 import cursorImg from 'assets/cursor.png';
 import swordImg from 'assets/sword.png';
 import { FigureStatus } from './store';
+import { getTerrainBackground } from '../../utils';
 
 const StyledCell = styled.div<{ isSelected: boolean; bg: string | null }>`
   width: ${CELL_SIZE}px;
@@ -73,16 +61,6 @@ interface CellProps {
   figureStatus: FigureStatus;
 }
 
-const bgMap: {
-  [key: string]: string;
-} = {
-  [MOUNTAIN]: mountainImg,
-  [GRASS]: grassImg,
-  [TREE]: treeImg,
-  [WATER]: waterImg,
-  [CITY]: cityImg,
-};
-
 const Cell = (props: CellProps) => {
   const { figureStatus } = props;
 
@@ -92,7 +70,7 @@ const Cell = (props: CellProps) => {
         props.onClick();
       }}
       isSelected={props.isSelected}
-      bg={bgMap[props.terrain] || ''}
+      bg={getTerrainBackground(props.terrain)}
     >
       {props.isAvailable && figureStatus === 'waitMove' && (
         <span className="indicator move"></span>

@@ -5,15 +5,7 @@ import lodash from 'lodash';
 import styled from 'styled-components';
 import { COLS, ROWS } from '../battle';
 import Cell from './cell';
-import {
-  TERRAIN_TEXT,
-  CITY,
-  GRASS,
-  TREE,
-  WATER,
-  PLAIN,
-  MOUNTAIN,
-} from '@constants';
+import { CITY, GRASS, TREE, WATER, PLAIN, MOUNTAIN } from '@constants';
 
 const Box = styled.div`
   width: 800px;
@@ -51,7 +43,7 @@ const MapEditor = () => {
             return (
               <div key={y} className="row">
                 {lodash.range(COLS).map((_, x) => {
-                  return <Cell key={x}></Cell>;
+                  return <Cell key={x} terrain={PLAIN}></Cell>;
                 })}
               </div>
             );
@@ -59,13 +51,17 @@ const MapEditor = () => {
         </div>
       </div>
       <div className="panel">
-        <div style={{ display: 'flex' }}>
-          <Cell>{TERRAIN_TEXT[PLAIN]}</Cell>
-          <Cell>{TERRAIN_TEXT[MOUNTAIN]}</Cell>
-          <Cell>{TERRAIN_TEXT[GRASS]}</Cell>
-          <Cell>{TERRAIN_TEXT[TREE]}</Cell>
-          <Cell>{TERRAIN_TEXT[WATER]}</Cell>
-          <Cell>{TERRAIN_TEXT[CITY]}</Cell>
+        <div
+          style={{ display: 'flex' }}
+          onClick={() => {
+            console.log('click');
+          }}
+        >
+          {([PLAIN, MOUNTAIN, GRASS, TREE, WATER, CITY] as const).map(
+            (terrain) => {
+              return <Cell terrain={terrain} key={terrain} />;
+            }
+          )}
         </div>
       </div>
     </Box>
